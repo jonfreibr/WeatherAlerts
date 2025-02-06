@@ -14,6 +14,8 @@ PySimpleGUI_License = 'enyNJQMSa3WaNFlJbBnxNllyVCHZlZwlZeSWIZ6FIPkDRSpocD3dRJyGa
 
 import requests
 import PySimpleGUI as sg
+import os
+import pickle
 
 progver = '0.1'
 
@@ -30,12 +32,56 @@ sg.theme_add_new('BRMC', BRMC)
 
 mainTheme = 'BRMC'
 errorTheme = 'HotDogStand'
+config_file = (f'{os.path.expanduser("~")}/w_alert.cfg')
+winLoc = (50, 50)
 
+# --------------------------------------------------
+def get_user_settings():
+
+	user_config = {}
+
+	try:
+		with open(config_file, 'rb') as fp:
+			user_config = pickle.load(fp)
+		fp.close()
+	except:
+		user_config['winLoc'] = winLoc
+
+	return user_config
+
+# --------------------------------------------------
+def write_user_settings(user_config):
+
+    try:
+        with open(config_file, 'wb') as fp:
+            pickle.dump(user_config, fp)
+        fp.close()
+    except:
+	    errorWindow(f'File or data error: {config_file}. Updates NOT saved!', winLoc)
+
+# --------------------------------------------------
+def errorWindow(error, winLoc):
+
+	sg.theme(errorTheme)
+	layout = [ [sg.Text(f'Error: {error}')],
+				[sg.Button('OK', bind_return_key=True)] ]
+	window = sg.Window('Error Message', layout, location=winLoc, modal=True, finalize=True)
+	while True:
+		event, values = window.read()
+		if event in (sg.WIN_CLOSED, 'OK'): # if user closes window or clicks abort
+			window.close()
+			return True
+
+# --------------------------------------------------
 class Location:
         def __init__(self, zone, name):
                 self.zone = zone
                 self.name = name
                 self.response = None
+
+        headers = {
+                "User-Agent": "BRMC Weather Alert Monitor, jfreivald@brmedical.com"
+        }
 
         def __str__(self):
                 return f"{self.zone}({self.name})"
@@ -44,14 +90,21 @@ class Location:
                 self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
                 return self.response
 
+# --------------------------------------------------
 def main():
+        user_config = get_user_settings()
+        if 'winLoc' in user_config:
+                winLoc = user_config['winLoc']
+        else:
+                winLoc = (50, 50)
+
         Nelson = Location("VAC125", "Nelson")
         Amherst = Location("VAC009", "Amherst")
         Appomattox = Location("VAC011", "Appomattox")
 
         sg.theme(mainTheme)
         layout = [ [sg.Button('Nelson', key='-NELSON-', button_color=None), sg.Button('Amherst', key='-AMHERST-', button_color=None),sg.Button('Appomattox', key='-APPOMATTOX-', button_color=None), sg.Button('Quit')] ]
-        window = sg.Window(f'Weather Alerts {progver}', layout, finalize=True)
+        window = sg.Window(f'Weather Alerts {progver}', layout, location=winLoc, finalize=True)
         window.BringToFront()
 
         while True:
@@ -69,36 +122,46 @@ def main():
                 window['-APPOMATTOX-'].update(button_color = None)
                 for x in appomattox_response['features']:
                         window['-APPOMATTOX-'].update(button_color = ('red'))
-
-                
-                event, values = window.read(timeout=30000)
+ 
+                event, values = window.read(timeout=60000) # Timeout and get new data
+                winLoc = window.CurrentLocation()
 
                 if event in (sg.WIN_CLOSED, 'Quit'):
+                        if event == 'Quit':
+                                user_config['winLoc'] = winLoc
+                                write_user_settings(user_config)
                         break
-                elif event == 'Nelson':
-                        pass
-                elif event == 'Amherst':
-                        pass
-                elif event == 'Appomattox':
-                        pass
+                elif event == '-NELSON-':
+                        showAlerts(nelson_response)
+                elif event == '-AMHERST-':
+                        showAlerts(amherst_response)
+                elif event == '-APPOMATTOX-':
+                        showAlerts(appomattox_response)
 
-        # for i in [Nelson, Amherst, Appomattox]:
-        #        print(i)
-        #        response = i.update()
-        #        for x in response['features']:
-        #               print("\n\nALERT FOR: "+x['properties']['areaDesc']+"\n")
-        #               print(x['properties']['headline'])
-        #               print(x['properties']['description'])
-        #               print(x['properties']['instruction'])
-        #               print('\n******\n')
+# --------------------------------------------------
+def showAlerts(response):
+        sg.theme(mainTheme)
+        layout = [[sg.Output(size=(80,40), key='-OUTPUT-')]]
+        window = sg.Window(title='Alert Details', layout=layout, finalize=True)
+        window.BringToFront()
+        
+        print(response['title'])
+        for x in response['features']:
+                print(x['properties']['areaDesc'])
+                print(x['properties']['headline'])
+                print(x['properties']['description'])
+                print(x['properties']['instruction'])
+                print('\n******\n')
+
+        while True:
+                event, values = window.read()
+
+                if event == sg.WIN_CLOSED:
+                        break
+                        
 
 
-        #print(response)
-
-        # response_pretty = json.dumps(response, indent=2)
-
-        # print(response_pretty)
-
+# --------------------------------------------------
 if __name__ == '__main__':
         main()
 

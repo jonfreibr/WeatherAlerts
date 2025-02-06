@@ -13,30 +13,94 @@ Purpose : To poll the National Weather Service for location specific alerts
 PySimpleGUI_License = 'enyNJQMSa3WaNFlJbBnxNllyVCHZlZwlZeSWIZ6FIPkDRSpocD3dRJyGa4W1Jh1udeGElsvHb2ipI9sOIWkjxuprYP2dVZu6cd2jVzJyReCuI16oMrTicuy7OZT0EE5KMLDkAP1tNsyjwQi7T9GZlpjPZuWi5gzWZKUcRxlAcsGHxjvpeEWq1xlXbLnrRYWjZyXiJKzPaQWa9cuUIgjToHiuNcSq4TwfIii4wEiaTYmJF4ttZMUZZgpDcynUN10HIPjDoIisSWmE9vukIYiww3iITqmEFktUZCU3xch7cs35QWiYOri5JvGic4m2VtpmddmIFCsHZICyIFs0IJkiNcvcbjXXB3hjbLnbkUinODiDJGCEb2HHV2lGIWFgJEpHZrG1dglrIrE619l2ZUGKlWjnYQWqwKgYQK2oVduQdIG5VXyqIni0w3idQl3oV0zidvG59pt2ZnXuJ7JlRCCxIf6VILjpkT3vNpTCEyi1LQCjJXEUYzXrRbloSwXEN0z7deWyVLkEIcjSoEipMgjVAAycNCCT03x0MRCk0RxgNkyfIcsJIzkbRThqduG1VJFBeLHNBKphcQmwVBzaI8jVoliJMfjPARyhNKSU0UwkM7yA0FxVOySeI7sgIAk9VotPYaWrlEsZQ3W6Rlk8cbm3VAzRcoyEIm6FIdmdpkm8cEmQVppbdqmaFfsPZdECBAijc1mH1wlMZwGVlhjDYQWuwauDYm2R9btGIci9wKixSEVJBBBvZKGfRtyyZcXpNhz7ImjIoJiIMPjcAJ1sLQjpIbyBMoCe4PyjMhz5MhuMMXTUEX2AIwnU0U=X3a60231e14c78915c4c7f16a8925b0fe8c44ec35a9ad759538d4d50c50c4d68b80ebf8e9ca576663b9d20176d071ab1d4d9ae2c40f56d8312423e2f966f1752319f88884d9aa823a5cf9a072e1da083313a6575b08c06ff09d6fccf012615fb26c28687d459aa0e5f4b73e1ca6b26f1b5254f275ba362656629ca0895749d37b8b79049dd79a425a683147d90db9604d10a1a8c4f00853d0f5e872357118797a8cc56179f500d67b59b96cefa92235ba3f69fe2f26cbd81e432eb601d5afb1ff5d0d6d7c0ec6b0e4423198c4b5bfa04df5c716a80edcbccfb43d384833f4983e81ebb69558d4f2fce376c39b6033356c9f58c891bce9f9d7803f8500932bd7345eb4dc68dfda56d2561017d9ae289ea664e75efe083f4a8ea71371d8695163586b271df3fbe20f5355d53ce20ef18652247c231cebf7ed0522eb37de95a4003330f0a45534995cb1b6d29adb7b484afabea551d861670f282e6cca724ad2d82f33ea6576aecea2bed372cd81cb408ad01704902dfe4d88471ca986132c87b8afb7ff8ad3c5ccfa1c3fe4724aab7271c0a7b0a3777836452e4259a558807c41572abffa69100429a9b8e166bf944169165c6e5af5b020a39be5ed685c952128831849945a7ebd96ee9c62dfd38aff2ce348b2f01f4297d59e0d643f1aa529b48674d926c6d845901a8d718d8cad459f7d13c2d7b7471aa0ee81e37e37557608b0'
 
 import requests
-# import json
+import PySimpleGUI as sg
 
 progver = '0.1'
 
-zone = "VAC125"
+BRMC = {'BACKGROUND': '#73afb6',
+                 'TEXT': '#00446a',
+                 'INPUT': '#ffcf01',
+                 'TEXT_INPUT': '#00446a',
+                 'SCROLL': '#ce7067',
+                 'BUTTON': ('#ffcf01', '#00446a'),
+                 'PROGRESS': ('#ffcf01', '#00446a'),
+                 'BORDER': 1, 'SLIDER_DEPTH': 0, 'PROGRESS_DEPTH': 0,
+                 }
+sg.theme_add_new('BRMC', BRMC)
 
-response = requests.get(f'https://api.weather.gov/alerts/active/zone/{zone}').json()
+mainTheme = 'BRMC'
+errorTheme = 'HotDogStand'
 
-#print(response)
+class Location:
+        def __init__(self, zone, name):
+                self.zone = zone
+                self.name = name
+                self.response = None
 
-# response_pretty = json.dumps(response, indent=2)
+        def __str__(self):
+                return f"{self.zone}({self.name})"
+        
+        def update(self):
+                self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
+                return self.response
 
-# print(response_pretty)
+def main():
+        Nelson = Location("VAC125", "Nelson")
+        Amherst = Location("VAC009", "Amherst")
+        Appomattox = Location("VAC011", "Appomattox")
 
-for x in response['features']:
-  print("\n\nALERT FOR: "+x['properties']['areaDesc']+"\n")
-  print(x['properties']['headline'])
-  print(x['properties']['description'])
-  print(x['properties']['instruction'])
-  print('\n******\n')
+        sg.theme(mainTheme)
+        layout = [ [sg.Button('Nelson', key='-NELSON-', button_color=None), sg.Button('Amherst', key='-AMHERST-', button_color=None),sg.Button('Appomattox', key='-APPOMATTOX-', button_color=None), sg.Button('Quit')] ]
+        window = sg.Window(f'Weather Alerts {progver}', layout, finalize=True)
+        window.BringToFront()
+
+        while True:
+                nelson_response = Nelson.update()
+                window['-NELSON-'].update(button_color = None)
+                for x in nelson_response['features']:
+                        window['-NELSON-'].update(button_color = ('red'))
+                        
+                amherst_response = Amherst.update()
+                window['-AMHERST-'].update(button_color = None)
+                for x in amherst_response['features']:
+                        window['-AMHERST-'].update(button_color = ('red'))
+                        
+                appomattox_response = Appomattox.update()
+                window['-APPOMATTOX-'].update(button_color = None)
+                for x in appomattox_response['features']:
+                        window['-APPOMATTOX-'].update(button_color = ('red'))
+
+                
+                event, values = window.read(timeout=30000)
+
+                if event in (sg.WIN_CLOSED, 'Quit'):
+                        break
+                elif event == 'Nelson':
+                        pass
+                elif event == 'Amherst':
+                        pass
+                elif event == 'Appomattox':
+                        pass
+
+        # for i in [Nelson, Amherst, Appomattox]:
+        #        print(i)
+        #        response = i.update()
+        #        for x in response['features']:
+        #               print("\n\nALERT FOR: "+x['properties']['areaDesc']+"\n")
+        #               print(x['properties']['headline'])
+        #               print(x['properties']['description'])
+        #               print(x['properties']['instruction'])
+        #               print('\n******\n')
 
 
+        #print(response)
 
+        # response_pretty = json.dumps(response, indent=2)
 
+        # print(response_pretty)
+
+if __name__ == '__main__':
+        main()
 
 """
 Change log:

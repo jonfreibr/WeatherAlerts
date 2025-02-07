@@ -20,7 +20,7 @@ import json
 from datetime import datetime
 import pytz
 
-progver = '0.1'
+progver = '0.2'
 
 BRMC = {'BACKGROUND': '#73afb6',
                  'TEXT': '#00446a',
@@ -113,20 +113,26 @@ def main():
         window.BringToFront()
 
         while True:
+                i = 0
                 nelson_response = Nelson.update()
-                window['-NELSON-'].update(button_color = None)
+                window['-NELSON-'].update('Nelson', button_color = None)
                 for x in nelson_response['features']:
-                        window['-NELSON-'].update(button_color = ('red'))
-                        
+                        i += 1
+                        window['-NELSON-'].update(f'Nelson ({i})', button_color = ('black', 'red'))
+
+                i = 0        
                 amherst_response = Amherst.update()
-                window['-AMHERST-'].update(button_color = None)
+                window['-AMHERST-'].update('Amherst', button_color = None)
                 for x in amherst_response['features']:
-                        window['-AMHERST-'].update(button_color = ('red'))
+                        i += 1
+                        window['-AMHERST-'].update(f'Amherst ({i})', button_color = ('black', 'red'))
                         
+                i = 0
                 appomattox_response = Appomattox.update()
-                window['-APPOMATTOX-'].update(button_color = None)
+                window['-APPOMATTOX-'].update('Appomattox', button_color = None)
                 for x in appomattox_response['features']:
-                        window['-APPOMATTOX-'].update(button_color = ('red'))
+                        i += 1
+                        window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = ('black', 'red'))
  
                 event, values = window.read(timeout=60000) # Timeout and get new data
                 winLoc = window.CurrentLocation()
@@ -178,5 +184,7 @@ if __name__ == '__main__':
 """
 Change log:
 
-v 0.1       : 250205    : Initial version
+v 0.1   : 250205        : Initial version
+v 0.2   : 250207        : Additional layout and display tweaks, including changing button colors and adding 
+                        : number of alerts to buttons    
 """

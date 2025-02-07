@@ -146,19 +146,22 @@ def main():
 # --------------------------------------------------
 def showAlerts(response):
         sg.theme(mainTheme)
-        layout = [[sg.Output(size=(80,40), key='-OUTPUT-')]]
+        layout = [[sg.Output(size=(81,40), key='-OUTPUT-')]]
         window = sg.Window(title='Alert Details', layout=layout, finalize=True)
         window.BringToFront()
+
+        divLine = "\n|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|\n"
         
         print(response['title'])
         print("Last NWS Update: "+response['updated'])
         print("Content refreshed: "+response['Retrieved'])
+        print(divLine)
         for x in response['features']:
                 print(x['properties']['areaDesc'])
                 print(x['properties']['headline'])
                 print(x['properties']['description'])
                 print(x['properties']['instruction'])
-                print('\n******\n')
+                print(divLine)
 
         while True:
                 event, values = window.read()

@@ -16,6 +16,9 @@ import requests
 import PySimpleGUI as sg
 import os
 import pickle
+import json
+from datetime import datetime
+import pytz
 
 progver = '0.1'
 
@@ -33,6 +36,7 @@ sg.theme_add_new('BRMC', BRMC)
 mainTheme = 'BRMC'
 errorTheme = 'HotDogStand'
 config_file = (f'{os.path.expanduser("~")}/w_alert.cfg')
+tz_NY = pytz.timezone('America/New_York')
 winLoc = (50, 50)
 
 # --------------------------------------------------
@@ -88,6 +92,7 @@ class Location:
         
         def update(self):
                 self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
+                self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
                 return self.response
 
 # --------------------------------------------------
@@ -146,6 +151,8 @@ def showAlerts(response):
         window.BringToFront()
         
         print(response['title'])
+        print("Last NWS Update: "+response['updated'])
+        print("Content refreshed: "+response['Retrieved'])
         for x in response['features']:
                 print(x['properties']['areaDesc'])
                 print(x['properties']['headline'])

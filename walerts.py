@@ -115,21 +115,21 @@ def main():
         while True:
                 i = 0
                 nelson_response = Nelson.update()
-                window['-NELSON-'].update('Nelson', button_color = None)
+                window['-NELSON-'].update('Nelson', button_color = ('#ffcf01','#00446a'))
                 for x in nelson_response['features']:
                         i += 1
                         window['-NELSON-'].update(f'Nelson ({i})', button_color = ('black', 'red'))
 
                 i = 0        
                 amherst_response = Amherst.update()
-                window['-AMHERST-'].update('Amherst', button_color = None)
+                window['-AMHERST-'].update('Amherst', button_color = ('#ffcf01','#00446a'))
                 for x in amherst_response['features']:
                         i += 1
                         window['-AMHERST-'].update(f'Amherst ({i})', button_color = ('black', 'red'))
                         
                 i = 0
                 appomattox_response = Appomattox.update()
-                window['-APPOMATTOX-'].update('Appomattox', button_color = None)
+                window['-APPOMATTOX-'].update('Appomattox', button_color = ('#ffcf01','#00446a'))
                 for x in appomattox_response['features']:
                         i += 1
                         window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = ('black', 'red'))

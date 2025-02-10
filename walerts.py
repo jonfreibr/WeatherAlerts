@@ -35,6 +35,8 @@ sg.theme_add_new('BRMC', BRMC)
 
 mainTheme = 'BRMC'
 errorTheme = 'HotDogStand'
+normal_button = ('#ffcf01','#00446a')
+alert_button = ('black', 'red')
 config_file = (f'{os.path.expanduser("~")}/w_alert.cfg')
 tz_NY = pytz.timezone('America/New_York')
 winLoc = (50, 50)
@@ -115,24 +117,24 @@ def main():
         while True:
                 i = 0
                 nelson_response = Nelson.update()
-                window['-NELSON-'].update('Nelson', button_color = ('#ffcf01','#00446a'))
+                window['-NELSON-'].update('Nelson', button_color = normal_button)
                 for x in nelson_response['features']:
                         i += 1
-                        window['-NELSON-'].update(f'Nelson ({i})', button_color = ('black', 'red'))
+                        window['-NELSON-'].update(f'Nelson ({i})', button_color = alert_button)
 
                 i = 0        
                 amherst_response = Amherst.update()
-                window['-AMHERST-'].update('Amherst', button_color = ('#ffcf01','#00446a'))
+                window['-AMHERST-'].update('Amherst', button_color = normal_button)
                 for x in amherst_response['features']:
                         i += 1
-                        window['-AMHERST-'].update(f'Amherst ({i})', button_color = ('black', 'red'))
+                        window['-AMHERST-'].update(f'Amherst ({i})', button_color = alert_button)
                         
                 i = 0
                 appomattox_response = Appomattox.update()
-                window['-APPOMATTOX-'].update('Appomattox', button_color = ('#ffcf01','#00446a'))
+                window['-APPOMATTOX-'].update('Appomattox', button_color = normal_button)
                 for x in appomattox_response['features']:
                         i += 1
-                        window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = ('black', 'red'))
+                        window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
  
                 event, values = window.read(timeout=60000) # Timeout and get new data
                 winLoc = window.CurrentLocation()

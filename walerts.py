@@ -193,5 +193,5 @@ Change log:
 v 0.1   : 250205        : Initial version
 v 0.2   : 250207        : Additional layout and display tweaks, including changing button colors and adding 
                         : number of alerts to buttons
-v 0.3   : 250212        : Added test to catch KeyError, updated refresh to 5 minutes
+v 0.3   : 250212        : Added tests to catch KeyError, updated refresh to 5 minutes
 """

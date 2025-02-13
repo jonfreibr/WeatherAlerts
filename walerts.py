@@ -20,7 +20,7 @@ import json
 from datetime import datetime
 import pytz
 
-progver = '0.2'
+progver = '0.3'
 
 BRMC = {'BACKGROUND': '#73afb6',
                  'TEXT': '#00446a',
@@ -118,25 +118,28 @@ def main():
                 i = 0
                 nelson_response = Nelson.update()
                 window['-NELSON-'].update('Nelson', button_color = normal_button)
-                for x in nelson_response['features']:
-                        i += 1
-                        window['-NELSON-'].update(f'Nelson ({i})', button_color = alert_button)
+                if 'features' in nelson_response.keys():
+                        for x in nelson_response['features']:
+                                i += 1
+                                window['-NELSON-'].update(f'Nelson ({i})', button_color = alert_button)
 
                 i = 0        
                 amherst_response = Amherst.update()
                 window['-AMHERST-'].update('Amherst', button_color = normal_button)
-                for x in amherst_response['features']:
-                        i += 1
-                        window['-AMHERST-'].update(f'Amherst ({i})', button_color = alert_button)
+                if 'features' in amherst_response.keys():
+                        for x in amherst_response['features']:
+                                i += 1
+                                window['-AMHERST-'].update(f'Amherst ({i})', button_color = alert_button)
                         
                 i = 0
                 appomattox_response = Appomattox.update()
                 window['-APPOMATTOX-'].update('Appomattox', button_color = normal_button)
-                for x in appomattox_response['features']:
-                        i += 1
-                        window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
+                if 'features' in appomattox_response.keys():
+                        for x in appomattox_response['features']:
+                                i += 1
+                                window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
  
-                event, values = window.read(timeout=60000) # Timeout and get new data
+                event, values = window.read(timeout=300000) # Timeout and get new data
                 winLoc = window.CurrentLocation()
 
                 if event in (sg.WIN_CLOSED, 'Quit'):
@@ -160,16 +163,17 @@ def showAlerts(response):
 
         divLine = "\n|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|\n"
         
-        print(response['title'])
-        print("Last NWS Update: "+response['updated'])
+        if 'title' in response.keys(): print(response['title'])
+        if 'updated' in response.keys(): print("Last NWS Update: "+response['updated'])
         print("Content refreshed: "+response['Retrieved'])
         print(divLine)
-        for x in response['features']:
-                print(x['properties']['areaDesc'])
-                print(x['properties']['headline'])
-                print(x['properties']['description'])
-                print(x['properties']['instruction'])
-                print(divLine)
+        if 'features' in response.keys():
+                for x in response['features']:
+                        print(x['properties']['areaDesc'])
+                        print(x['properties']['headline'])
+                        print(x['properties']['description'])
+                        print(x['properties']['instruction'])
+                        print(divLine)
 
         while True:
                 event, values = window.read()
@@ -188,5 +192,6 @@ Change log:
 
 v 0.1   : 250205        : Initial version
 v 0.2   : 250207        : Additional layout and display tweaks, including changing button colors and adding 
-                        : number of alerts to buttons    
+                        : number of alerts to buttons
+v 0.3   : 250212        : Added test to catch KeyError, updated refresh to 5 minutes
 """

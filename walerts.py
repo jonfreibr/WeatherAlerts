@@ -20,7 +20,7 @@ import json
 from datetime import datetime
 import pytz
 
-progver = '0.3'
+progver = '0.4'
 
 BRMC = {'BACKGROUND': '#73afb6',
                  'TEXT': '#00446a',
@@ -93,8 +93,11 @@ class Location:
                 return f"{self.zone}({self.name})"
         
         def update(self):
-                self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
-                self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
+                try:
+                        self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
+                        self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
+                except:
+                        self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
                 return self.response
 
 # --------------------------------------------------
@@ -194,4 +197,5 @@ v 0.1   : 250205        : Initial version
 v 0.2   : 250207        : Additional layout and display tweaks, including changing button colors and adding 
                         : number of alerts to buttons
 v 0.3   : 250212        : Added tests to catch KeyError, updated refresh to 5 minutes
+v 0.4   : 250217        : Added error checking on API availability
 """

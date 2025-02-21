@@ -119,11 +119,8 @@ def main():
         window.BringToFront()
 
         while True:
-                window['-NELSON-'].update('Nelson', button_color = grey_button)
-                window['-AMHERST-'].update('Amherst', button_color = grey_button)
-                window['-APPOMATTOX-'].update('Appomattox', button_color = grey_button)
-
                 i = 0
+                window['-NELSON-'].update('Nelson', button_color = grey_button)
                 nelson_response = Nelson.update()
                 window['-NELSON-'].update('Nelson', button_color = normal_button)
                 if 'features' in nelson_response.keys():
@@ -132,6 +129,7 @@ def main():
                                 window['-NELSON-'].update(f'Nelson ({i})', button_color = alert_button)
 
                 i = 0
+                window['-AMHERST-'].update('Amherst', button_color = grey_button)
                 amherst_response = Amherst.update()
                 window['-AMHERST-'].update('Amherst', button_color = normal_button)
                 if 'features' in amherst_response.keys():
@@ -140,6 +138,7 @@ def main():
                                 window['-AMHERST-'].update(f'Amherst ({i})', button_color = alert_button)
                         
                 i = 0
+                window['-APPOMATTOX-'].update('Appomattox', button_color = grey_button)
                 appomattox_response = Appomattox.update()
                 window['-APPOMATTOX-'].update('Appomattox', button_color = normal_button)
                 if 'features' in appomattox_response.keys():
@@ -203,5 +202,6 @@ v 0.2   : 250207        : Additional layout and display tweaks, including changi
                         : number of alerts to buttons
 v 0.3   : 250212        : Added tests to catch KeyError, updated refresh to 5 minutes
 v 0.4   : 250217        : Added error checking on API availability
-v 0.5   : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive.
+v 0.5   : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive. This will only appear
+                        :   if the API has a very slow response.
 """

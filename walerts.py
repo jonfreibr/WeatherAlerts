@@ -20,7 +20,7 @@ import json
 from datetime import datetime
 import pytz
 
-progver = '0.4'
+progver = '0.5'
 
 BRMC = {'BACKGROUND': '#73afb6',
                  'TEXT': '#00446a',
@@ -37,6 +37,7 @@ mainTheme = 'BRMC'
 errorTheme = 'HotDogStand'
 normal_button = ('#ffcf01','#00446a')
 alert_button = ('black', 'red')
+grey_button = ('#ffcf01','grey')
 config_file = (f'{os.path.expanduser("~")}/w_alert.cfg')
 tz_NY = pytz.timezone('America/New_York')
 winLoc = (50, 50)
@@ -113,11 +114,15 @@ def main():
         Appomattox = Location("VAC011", "Appomattox")
 
         sg.theme(mainTheme)
-        layout = [ [sg.Button('Nelson', key='-NELSON-', button_color=None), sg.Button('Amherst', key='-AMHERST-', button_color=None),sg.Button('Appomattox', key='-APPOMATTOX-', button_color=None), sg.Button('Quit')] ]
+        layout = [ [sg.Button('Nelson', key='-NELSON-', button_color=grey_button), sg.Button('Amherst', key='-AMHERST-', button_color=grey_button),sg.Button('Appomattox', key='-APPOMATTOX-', button_color=grey_button), sg.Button('Quit')] ]
         window = sg.Window(f'Weather Alerts {progver}', layout, location=winLoc, finalize=True)
         window.BringToFront()
 
         while True:
+                window['-NELSON-'].update('Nelson', button_color = grey_button)
+                window['-AMHERST-'].update('Amherst', button_color = grey_button)
+                window['-APPOMATTOX-'].update('Appomattox', button_color = grey_button)
+
                 i = 0
                 nelson_response = Nelson.update()
                 window['-NELSON-'].update('Nelson', button_color = normal_button)
@@ -126,7 +131,7 @@ def main():
                                 i += 1
                                 window['-NELSON-'].update(f'Nelson ({i})', button_color = alert_button)
 
-                i = 0        
+                i = 0
                 amherst_response = Amherst.update()
                 window['-AMHERST-'].update('Amherst', button_color = normal_button)
                 if 'features' in amherst_response.keys():
@@ -198,4 +203,5 @@ v 0.2   : 250207        : Additional layout and display tweaks, including changi
                         : number of alerts to buttons
 v 0.3   : 250212        : Added tests to catch KeyError, updated refresh to 5 minutes
 v 0.4   : 250217        : Added error checking on API availability
+v 0.5   : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive.
 """

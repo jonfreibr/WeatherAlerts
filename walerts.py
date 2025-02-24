@@ -113,7 +113,7 @@ class Location:
                 return f"{self.zone}({self.name})"
         
         def update(self):
-                if self.timer.check() > 300: # Time in seconds minimum between refreshes
+                if self.timer.check() > 300: # Time (in seconds) minimum between refreshes
                         self.timer.reset()
                         try:
                                 self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
@@ -169,7 +169,7 @@ def main():
                                 i += 1
                                 window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
  
-                event, values = window.read(timeout=300000) # Timeout and get new data
+                event, values = window.read(timeout=300000) # Timeout and get new data (milliseconds)
                 winLoc = window.CurrentLocation()
 
                 if event in (sg.WIN_CLOSED, 'Quit'):

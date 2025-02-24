@@ -19,8 +19,9 @@ import pickle
 import json
 from datetime import datetime
 import pytz
+import time
 
-progver = '0.5'
+progver = '0.6'
 
 BRMC = {'BACKGROUND': '#73afb6',
                  'TEXT': '#00446a',
@@ -80,26 +81,48 @@ def errorWindow(error, winLoc):
 			return True
 
 # --------------------------------------------------
+class Timer:
+        def __init__(self):
+                self.then = time.time()
+
+        def reset(self):
+                self.then = time.time()
+
+        def check(self):
+                return time.time() - self.then
+
+# --------------------------------------------------
 class Location:
-        def __init__(self, zone, name):
-                self.zone = zone
-                self.name = name
-                self.response = None
 
         headers = {
                 "User-Agent": "BRMC Weather Alert Monitor, jfreivald@brmedical.com"
         }
 
-        def __str__(self):
-                return f"{self.zone}({self.name})"
-        
-        def update(self):
+        def __init__(self, zone, name):
+                self.zone = zone
+                self.name = name
+                self.response = None
+                self.timer = Timer()
                 try:
                         self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
                         self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
                 except:
                         self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
-                return self.response
+
+        def __str__(self):
+                return f"{self.zone}({self.name})"
+        
+        def update(self):
+                if self.timer.check() > 300: # Time in seconds minimum between refreshes
+                        self.timer.reset()
+                        try:
+                                self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
+                                self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
+                        except:
+                                self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
+                        return self.response
+                else:
+                        return self.response
 
 # --------------------------------------------------
 def main():
@@ -204,4 +227,5 @@ v 0.3   : 250212        : Added tests to catch KeyError, updated refresh to 5 mi
 v 0.4   : 250217        : Added error checking on API availability
 v 0.5   : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive. This will only appear
                         :   if the API has a very slow response.
+v 0.6   : 250224        : Implemented a timer to manage refresh interval so a refresh doesn't occur every button push.
 """

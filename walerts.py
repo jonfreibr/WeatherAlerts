@@ -16,7 +16,6 @@ import requests
 import PySimpleGUI as sg
 import os
 import pickle
-import json
 from datetime import datetime
 import pytz
 import time
@@ -120,9 +119,9 @@ class Location:
                                 self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
                         except:
                                 self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
-                        return self.response
+                        return self.response # the new response
                 else:
-                        return self.response
+                        return self.response # the last response retrieved
 
 # --------------------------------------------------
 def main():

@@ -168,7 +168,7 @@ def main():
                                 i += 1
                                 window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
  
-                event, values = window.read(timeout=300000) # Timeout and get new data (milliseconds)
+                event, values = window.read(timeout=60000) # Timeout and get new data (milliseconds)
                 winLoc = window.CurrentLocation()
 
                 if event in (sg.WIN_CLOSED, 'Quit'):

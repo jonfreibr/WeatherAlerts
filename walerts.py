@@ -17,10 +17,13 @@ import PySimpleGUI as sg
 import os
 import pickle
 from datetime import datetime
+from sys import platform
+import subprocess
 import pytz
 import time
+import atexit
 
-progver = '0.6'
+progver = '0.7'
 
 BRMC = {'BACKGROUND': '#73afb6',
                  'TEXT': '#00446a',
@@ -66,6 +69,29 @@ def write_user_settings(user_config):
     except:
 	    errorWindow(f'File or data error: {config_file}. Updates NOT saved!', winLoc)
 
+# --------------------------------------------------
+def do_update():
+    sg.theme('Kayak')
+    layout = [ [sg.Text('There is an update available for the IQT application.')],
+                [sg.Text('Automatic updates are only available for Windows at this time.')],
+                [sg.Text('Other platforms please check with your systems administrator.')],
+                [sg.Button("Update"), sg.Button("Skip")]]
+    window = sg.Window("Updates", layout)
+    while True:
+        event, values = window.read()
+
+        if event in (sg.WIN_CLOSED, 'Skip'):
+            atexit.unregister(update_app)
+            window.close()
+            break
+        if event == "Update":
+            exit()
+
+# --------------------------------------------------
+def update_app():
+    if platform == "win32":
+        subprocess.Popen(["cmd", "/c", "H:/_BRMCApps/WeatherAlerts/install.bat", "/min"], stdout=None, stderr=None)
+        
 # --------------------------------------------------
 def errorWindow(error, winLoc):
 
@@ -136,59 +162,80 @@ def main():
         Appomattox = Location("VAC011", "Appomattox")
 
         sg.theme(mainTheme)
-        layout = [ [sg.Button('Nelson', key='-NELSON-', button_color=grey_button), sg.Button('Amherst', key='-AMHERST-', button_color=grey_button),sg.Button('Appomattox', key='-APPOMATTOX-', button_color=grey_button), sg.Button('Quit')] ]
-        window = sg.Window(f'Weather Alerts {progver}', layout, location=winLoc, finalize=True)
-        window.BringToFront()
+        layout = [ [sg.Button('Nelson', key='-NELSON-', button_color=grey_button, enable_events=True), sg.Button('Amherst', key='-AMHERST-', button_color=grey_button, enable_events=True),sg.Button('Appomattox', key='-APPOMATTOX-', button_color=grey_button, enable_events=True), sg.Button('Quit')] ]
+        winmain = sg.Window(f'Weather Alerts {progver}', layout, location=winLoc, finalize=True)
+        winmain.BringToFront()
+
+        window1, window2, window3 = None, None, None
 
         while True:
                 i = 0
-                window['-NELSON-'].update('Nelson', button_color = grey_button)
+                winmain['-NELSON-'].update('Nelson', button_color = grey_button)
                 nelson_response = Nelson.update()
-                window['-NELSON-'].update('Nelson', button_color = normal_button)
+                winmain['-NELSON-'].update('Nelson', button_color = normal_button)
                 if 'features' in nelson_response.keys():
                         for x in nelson_response['features']:
                                 i += 1
-                                window['-NELSON-'].update(f'Nelson ({i})', button_color = alert_button)
+                                winmain['-NELSON-'].update(f'Nelson ({i})', button_color = alert_button)
 
                 i = 0
-                window['-AMHERST-'].update('Amherst', button_color = grey_button)
+                winmain['-AMHERST-'].update('Amherst', button_color = grey_button)
                 amherst_response = Amherst.update()
-                window['-AMHERST-'].update('Amherst', button_color = normal_button)
+                winmain['-AMHERST-'].update('Amherst', button_color = normal_button)
                 if 'features' in amherst_response.keys():
                         for x in amherst_response['features']:
                                 i += 1
-                                window['-AMHERST-'].update(f'Amherst ({i})', button_color = alert_button)
+                                winmain['-AMHERST-'].update(f'Amherst ({i})', button_color = alert_button)
                         
                 i = 0
-                window['-APPOMATTOX-'].update('Appomattox', button_color = grey_button)
+                winmain['-APPOMATTOX-'].update('Appomattox', button_color = grey_button)
                 appomattox_response = Appomattox.update()
-                window['-APPOMATTOX-'].update('Appomattox', button_color = normal_button)
+                winmain['-APPOMATTOX-'].update('Appomattox', button_color = normal_button)
                 if 'features' in appomattox_response.keys():
                         for x in appomattox_response['features']:
                                 i += 1
-                                window['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
+                                winmain['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
  
-                event, values = window.read(timeout=60000) # Timeout and get new data (milliseconds)
-                winLoc = window.CurrentLocation()
+                window, event, values = sg.read_all_windows(timeout=60000) # Timeout and get new data (milliseconds)
+                winLoc = winmain.CurrentLocation()
 
-                if event in (sg.WIN_CLOSED, 'Quit'):
-                        if event == 'Quit':
-                                user_config['winLoc'] = winLoc
-                                write_user_settings(user_config)
+                if window == sg.WIN_CLOSED:     # All windows closed
                         break
+                if event in (sg.WIN_CLOSED, 'Quit'):
+                        window.close()
+                        if window == window1:
+                                window1 = None
+                        elif window == window2:
+                                window2 = None
+                        elif window == window3:
+                                window3 = None
+                        elif window == winmain:
+                                if event == 'Quit':
+                                        user_config['winLoc'] = winLoc
+                                        write_user_settings(user_config)
+                                break
                 elif event == '-NELSON-':
-                        showAlerts(nelson_response)
+                        window1 = showAlerts(nelson_response, 1)
                 elif event == '-AMHERST-':
-                        showAlerts(amherst_response)
+                        window2 = showAlerts(amherst_response, 2)
                 elif event == '-APPOMATTOX-':
-                        showAlerts(appomattox_response)
+                        window3 = showAlerts(appomattox_response, 3)
 
 # --------------------------------------------------
-def showAlerts(response):
+def showAlerts(response, num):
         sg.theme(mainTheme)
         layout = [[sg.Output(size=(81,40), key='-OUTPUT-')]]
-        window = sg.Window(title='Alert Details', layout=layout, finalize=True)
-        window.BringToFront()
+        if num == 1:
+                window1 = sg.Window(title='Alert Details', layout=layout, location=(10, 10), finalize=True)
+                win=window1
+        elif num == 2:
+                window2 = sg.Window(title='Alert Details', layout=layout, location=(350, 10), finalize=True)
+                win=window2
+        elif num == 3:
+                window3 = sg.Window(title='Alert Details', layout=layout, location=(700, 10), finalize=True)
+                win=window3
+        # window = sg.Window(title='Alert Details', layout=layout, finalize=True)
+        # win.BringToFront()
 
         divLine = "\n|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|\n"
         
@@ -204,16 +251,21 @@ def showAlerts(response):
                         print(x['properties']['instruction'])
                         print(divLine)
 
-        while True:
-                event, values = window.read()
+        return win
+        # while True:
+        #         event, values = win.read()
 
-                if event == sg.WIN_CLOSED:
-                        break
+        #         if event == sg.WIN_CLOSED:
+        #                 break
                         
 
 
 # --------------------------------------------------
 if __name__ == '__main__':
+        if platform == "win32":
+                if datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S"):
+                        atexit.register(update_app)
+                        do_update()
         main()
 
 """
@@ -227,4 +279,5 @@ v 0.4   : 250217        : Added error checking on API availability
 v 0.5   : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive. This will only appear
                         :   if the API has a very slow response.
 v 0.6   : 250224        : Implemented a timer to manage refresh interval so a refresh doesn't occur every button push.
+v 0.7   : 250306        : Implemented non-blocking windows. Also automatic app updates.
 """

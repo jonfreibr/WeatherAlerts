@@ -196,11 +196,9 @@ def main():
                                 i += 1
                                 winmain['-APPOMATTOX-'].update(f'Appomattox ({i})', button_color = alert_button)
  
-                window, event, values = sg.read_all_windows(timeout=60000) # Timeout and get new data (milliseconds)
+                window, event, values = sg.read_all_windows(timeout = 60000) # Timeout and get new data (milliseconds)
                 winLoc = winmain.CurrentLocation()
 
-                if window == sg.WIN_CLOSED:     # All windows closed
-                        break
                 if event in (sg.WIN_CLOSED, 'Quit'):
                         window.close()
                         if window == window1:
@@ -234,8 +232,6 @@ def showAlerts(response, num):
         elif num == 3:
                 window3 = sg.Window(title='Alert Details', layout=layout, location=(700, 10), finalize=True)
                 win=window3
-        # window = sg.Window(title='Alert Details', layout=layout, finalize=True)
-        # win.BringToFront()
 
         divLine = "\n|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|\n"
         
@@ -252,13 +248,6 @@ def showAlerts(response, num):
                         print(divLine)
 
         return win
-        # while True:
-        #         event, values = win.read()
-
-        #         if event == sg.WIN_CLOSED:
-        #                 break
-                        
-
 
 # --------------------------------------------------
 if __name__ == '__main__':

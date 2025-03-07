@@ -72,7 +72,7 @@ def write_user_settings(user_config):
 # --------------------------------------------------
 def do_update():
     sg.theme('Kayak')
-    layout = [ [sg.Text('There is an update available for the IQT application.')],
+    layout = [ [sg.Text('There is an update available for the Weather Alert application.')],
                 [sg.Text('Automatic updates are only available for Windows at this time.')],
                 [sg.Text('Other platforms please check with your systems administrator.')],
                 [sg.Button("Update"), sg.Button("Skip")]]

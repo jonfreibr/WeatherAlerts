@@ -266,7 +266,7 @@ v 0.2   : 250207        : Additional layout and display tweaks, including changi
 v 0.3   : 250212        : Added tests to catch KeyError, updated refresh to 5 minutes
 v 0.4   : 250217        : Added error checking on API availability
 v 0.5   : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive. This will only appear
-                        :   if the API has a very slow response.
+                        :   if the API has a very slow response. (I thought this worked -- does it really?)
 v 0.6   : 250224        : Implemented a timer to manage refresh interval so a refresh doesn't occur every button push.
 v 0.7   : 250306        : Implemented non-blocking windows. Also automatic app updates.
 """

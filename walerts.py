@@ -271,6 +271,7 @@ class DataWindow(QWidget):
                         self.buf.append(divLine)
 
         self.text_edit = QTextEdit()
+        self.text_edit.setStyleSheet(f'background-color: {brmc_gold}; color: black')
         self.text_edit.insertPlainText('\n'.join(self.buf))
         self.text_edit.setReadOnly(True)
         layout.addWidget(self.text_edit)

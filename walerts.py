@@ -20,14 +20,12 @@ import subprocess
 
 from datetime import datetime
 
-# from PyQt6.QtCore import (
 from PySide6.QtCore import (
     QTimer,
     QSettings,
     QPoint,
     QSize,
 )
-# from PyQt6.QtWidgets import (
 from PySide6.QtWidgets import (
     QWidget,
     QLabel,
@@ -52,23 +50,6 @@ brmc_rust = '#ce7067'
 brmc_warm_grey = '#9a8b7d'
 
 # --------------------------------------------------
-# def do_update():
-#     sg.theme('Kayak')
-#     layout = [ [sg.Text('There is an update available for the Weather Alert application.')],
-#                 [sg.Text('Automatic updates are only available for Windows at this time.')],
-#                 [sg.Text('Other platforms please check with your systems administrator.')],
-#                 [sg.Button("Update"), sg.Button("Skip")]]
-#     window = sg.Window("Updates", layout)
-#     while True:
-#         event, values = window.read()
-
-#         if event in (sg.WIN_CLOSED, 'Skip'):
-#             atexit.unregister(update_app)
-#             window.close()
-#             break
-#         if event == "Update":
-#             sys.exit()
-
 class UpdateDialog(QDialog):
     def __init__(self, parent = None):
         super().__init__(parent)

@@ -40,7 +40,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '0.8'
+progver = '0.9'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -133,7 +133,7 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet(f'background-color: {brmc_medium_blue}')
 
-        self.setWindowTitle("Weather Alerts 0.8")
+        self.setWindowTitle(f"Weather Alerts {progver}")
         container = QWidget()
         layout = QHBoxLayout()
 
@@ -161,7 +161,7 @@ class MainWindow(QMainWindow):
         
         n_timer = QTimer(self)
         n_timer.timeout.connect(self.do_update)
-        n_timer.start(10000)
+        n_timer.start(60000)
        
         container.setLayout(layout)
 
@@ -174,6 +174,7 @@ class MainWindow(QMainWindow):
         button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
 
     def button_red(self, button):
+        self.raise_()
         button.setStyleSheet(f'background-color: red; color: {brmc_gold}')
 
     def pn(self):
@@ -307,4 +308,5 @@ v 0.5   : 250221        : Buttons will go grey during data refresh to show when 
 v 0.6   : 250224        : Implemented a timer to manage refresh interval so a refresh doesn't occur every button push.
 v 0.7   : 250306        : Implemented non-blocking windows. Also automatic app updates.
 v 0.8   : 250311-250318 : Complete re-write migrating from PySimpleGUI to PySide6
+v 0.9   : 250318        : Added bring to front feature when button turns red.
 """

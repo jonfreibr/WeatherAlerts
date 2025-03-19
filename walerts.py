@@ -40,7 +40,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '0.9'
+progver = '0.9(a)'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -266,13 +266,17 @@ class DataWindow(QWidget):
         self.text_edit.insertPlainText(divLine+'\n')
         if 'features' in self.response.keys():
                 for x in self.response['features']:
-                        self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n')
+                        self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n\n')
                         self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n')
                         self.text_edit.insertPlainText(str(x['properties']['description']) + '\n')
                         self.text_edit.insertPlainText(str(x['properties']['instruction']) + '\n')
                         self.text_edit.insertPlainText(divLine + '\n')
                         
+        self.cursor = self.text_edit.textCursor()
+        self.cursor.setPosition(0)
+        self.text_edit.setTextCursor(self.cursor)
         self.text_edit.setReadOnly(True)
+        # self.text_edit.find('Current watches')
         layout.addWidget(self.text_edit)
         self.setLayout(layout)
 
@@ -296,15 +300,16 @@ if __name__ == '__main__':
 """
 Change log:
 
-v 0.1   : 250205        : Initial version
-v 0.2   : 250207        : Additional layout and display tweaks, including changing button colors and adding 
-                        : number of alerts to buttons
-v 0.3   : 250212        : Added tests to catch KeyError, updated refresh to 5 minutes
-v 0.4   : 250217        : Added error checking on API availability
-v 0.5   : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive. This will only appear
-                        :   if the API has a very slow response. (I thought this worked -- does it really?)
-v 0.6   : 250224        : Implemented a timer to manage refresh interval so a refresh doesn't occur every button push.
-v 0.7   : 250306        : Implemented non-blocking windows. Also automatic app updates.
-v 0.8   : 250311-250318 : Complete re-write migrating from PySimpleGUI to PySide6
-v 0.9   : 250318        : Added code to flash the tray icon when buttons turn red.
+v 0.1       : 250205        : Initial version
+v 0.2       : 250207        : Additional layout and display tweaks, including changing button colors and adding 
+                            : number of alerts to buttons
+v 0.3       : 250212        : Added tests to catch KeyError, updated refresh to 5 minutes
+v 0.4       : 250217        : Added error checking on API availability
+v 0.5       : 250221        : Buttons will go grey during data refresh to show when they will be unresponsive. This will only appear
+                            :   if the API has a very slow response. (I thought this worked -- does it really?)
+v 0.6       : 250224        : Implemented a timer to manage refresh interval so a refresh doesn't occur every button push.
+v 0.7       : 250306        : Implemented non-blocking windows. Also automatic app updates.
+v 0.8       : 250311-250318 : Complete re-write migrating from PySimpleGUI to PySide6
+v 0.9       : 250318        : Added code to flash the tray icon when buttons turn red.
+v 0.9(a)    : 250319        : Minor UI/display tweaks.
 """

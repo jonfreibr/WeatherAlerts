@@ -306,5 +306,5 @@ v 0.5   : 250221        : Buttons will go grey during data refresh to show when 
 v 0.6   : 250224        : Implemented a timer to manage refresh interval so a refresh doesn't occur every button push.
 v 0.7   : 250306        : Implemented non-blocking windows. Also automatic app updates.
 v 0.8   : 250311-250318 : Complete re-write migrating from PySimpleGUI to PySide6
-v 0.9   : 250318        : Added bring to front feature when button turns red.
+v 0.9   : 250318        : Added code to flash the tray icon when buttons turn red.
 """

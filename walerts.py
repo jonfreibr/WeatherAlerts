@@ -175,7 +175,8 @@ class MainWindow(QMainWindow):
 
     def button_red(self, button):
         self.raise_()
-        button.setStyleSheet(f'background-color: red; color: {brmc_gold}')
+        self.activateWindow()
+        button.setStyleSheet(f'background-color: red; color: black')
 
     def pn(self):
         self.display_nelson(self.Nelson.update())
@@ -251,29 +252,26 @@ class DataWindow(QWidget):
         self.response = response
         self.setWindowTitle("Current Alerts")
         self.setContentsMargins(10, 10, 10, 10)
-        self.setGeometry(30, 30, 650, 600)
+        self.setGeometry(30, 30, 655, 600)
         self.setStyleSheet(f'background-color: {brmc_medium_blue}; color: black')
         layout = QHBoxLayout()
 
         divLine = "\n|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|\n"
 
-        self.buf = []
-        
-        if 'title' in self.response.keys(): self.buf.append(self.response['title'])
-        if 'updated' in self.response.keys(): self.buf.append("Last NWS Update: " + self.response['updated'])
-        self.buf.append("Content refreshed: " + self.response['Retrieved'])
-        self.buf.append(divLine)
-        if 'features' in self.response.keys():
-                for x in self.response['features']:
-                        self.buf.append(x['properties']['areaDesc'])
-                        self.buf.append(x['properties']['headline'])
-                        self.buf.append(x['properties']['description'])
-                        self.buf.append(x['properties']['instruction'])
-                        self.buf.append(divLine)
-
         self.text_edit = QTextEdit()
         self.text_edit.setStyleSheet(f'background-color: {brmc_gold}; color: black')
-        self.text_edit.insertPlainText('\n'.join(self.buf))
+        if 'title' in self.response.keys(): self.text_edit.insertPlainText(self.response['title']+'\n')
+        if 'updated' in self.response.keys(): self.text_edit.insertPlainText("Last NWS Update: " + self.response['updated']+'\n')
+        self.text_edit.insertPlainText("Content refreshed: " + self.response['Retrieved']+'\n')
+        self.text_edit.insertPlainText(divLine+'\n')
+        if 'features' in self.response.keys():
+                for x in self.response['features']:
+                        self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n')
+                        self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n')
+                        self.text_edit.insertPlainText(str(x['properties']['description']) + '\n')
+                        self.text_edit.insertPlainText(str(x['properties']['instruction']) + '\n')
+                        self.text_edit.insertPlainText(divLine + '\n')
+                        
         self.text_edit.setReadOnly(True)
         layout.addWidget(self.text_edit)
         self.setLayout(layout)

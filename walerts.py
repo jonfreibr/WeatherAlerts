@@ -40,7 +40,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '0.9(a)'
+progver = '0.9(b)'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -133,7 +133,7 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet(f'background-color: {brmc_medium_blue}')
 
-        self.setWindowTitle(f"Weather Alerts {progver}")
+        self.setWindowTitle(f"Weather Alerts version {progver}")
         container = QWidget()
         layout = QHBoxLayout()
 
@@ -267,7 +267,7 @@ class DataWindow(QWidget):
         if 'features' in self.response.keys():
                 for x in self.response['features']:
                         self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n\n')
-                        self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n')
+                        self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n\n')
                         self.text_edit.insertPlainText(str(x['properties']['description']) + '\n')
                         self.text_edit.insertPlainText(str(x['properties']['instruction']) + '\n')
                         self.text_edit.insertPlainText(divLine + '\n')
@@ -312,4 +312,5 @@ v 0.7       : 250306        : Implemented non-blocking windows. Also automatic a
 v 0.8       : 250311-250318 : Complete re-write migrating from PySimpleGUI to PySide6
 v 0.9       : 250318        : Added code to flash the tray icon when buttons turn red.
 v 0.9(a)    : 250319        : Minor UI/display tweaks.
+v 0.9(b)    : 250320        : More minor tweaks to how alerts display.
 """

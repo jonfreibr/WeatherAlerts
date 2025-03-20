@@ -158,6 +158,7 @@ class MainWindow(QMainWindow):
         self.button_normal(self.ap_button)
         layout.addWidget(self.ap_button)
 
+        self.do_update() # Get the buttons right on startup
         
         n_timer = QTimer(self)
         n_timer.timeout.connect(self.do_update)

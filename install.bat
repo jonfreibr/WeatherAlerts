@@ -10,6 +10,7 @@ echo Copying files
 if not exist %USERPROFILE%\Walerts md %USERPROFILE%\Walerts
 copy /y %~dp0\walerts.py %USERPROFILE%\Walerts
 copy /y %~dp0\WAlertWidgetDefaults.reg %USERPROFILE%\Walerts
+copy /y %~dp0\*.png %USERPROFILE%\Walerts
 copy /y "%~dp0\Weather Alerts.lnk" %USERPROFILE%\Desktop
 echo Done with installation
 start %USERPROFILE%"\Desktop\Weather Alerts.lnk"

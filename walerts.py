@@ -20,6 +20,14 @@ import subprocess
 
 from datetime import datetime
 
+from PySide6.QtGui import (
+    QIcon,
+)
+
+from PySide6 import (
+    QtCore,
+)
+
 from PySide6.QtCore import (
     QTimer,
     QSettings,
@@ -40,7 +48,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '0.9(b)'
+progver = '1.0'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -134,6 +142,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(f'background-color: {brmc_medium_blue}')
 
         self.setWindowTitle(f"Weather Alerts version {progver}")
+        self.setWindowIcon(QIcon('weather-lightning.png'))
         container = QWidget()
         layout = QHBoxLayout()
 
@@ -252,6 +261,7 @@ class DataWindow(QWidget):
         super().__init__()
         self.response = response
         self.setWindowTitle("Current Alerts")
+        self.setWindowIcon(QIcon('exclamation-diamond-frame.png'))
         self.setContentsMargins(10, 10, 10, 10)
         self.setGeometry(30, 30, 655, 600)
         self.setStyleSheet(f'background-color: {brmc_medium_blue}; color: black')
@@ -313,4 +323,5 @@ v 0.8       : 250311-250318 : Complete re-write migrating from PySimpleGUI to Py
 v 0.9       : 250318        : Added code to flash the tray icon when buttons turn red.
 v 0.9(a)    : 250319        : Minor UI/display tweaks.
 v 0.9(b)    : 250320        : More minor tweaks to how alerts display.
+v 1.0       : 250320        : Added custom task bar icons.
 """

@@ -276,7 +276,6 @@ class DataWindow(QWidget):
         self.cursor.setPosition(0)
         self.text_edit.setTextCursor(self.cursor)
         self.text_edit.setReadOnly(True)
-        # self.text_edit.find('Current watches')
         layout.addWidget(self.text_edit)
         self.setLayout(layout)
 

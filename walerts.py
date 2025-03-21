@@ -13,6 +13,7 @@ import os
 import sys
 import time
 import pytz
+import psutil
 import atexit
 import requests
 import subprocess
@@ -48,7 +49,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '1.0'
+progver = '1.01'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -78,6 +79,16 @@ class UpdateDialog(QDialog):
         layout.addWidget(button_box)
         self.setLayout(layout)
 
+# --------------------------------------------------
+def is_running(script):
+    for q in psutil.process_iter():
+        if q.name().startswith('python'):
+            if len(q.cmdline())>1 and script in q.cmdline()[1] and q.pid !=os.getpid():
+                # print(f"'{script}' Process is already running")
+                return True
+            
+    return False
+            
 # --------------------------------------------------
 def update_app():
     if sys.platform == "win32":
@@ -293,7 +304,9 @@ class DataWindow(QWidget):
 # --------------------------------------------------
 if __name__ == '__main__':
     
-    
+    if is_running(os.path.basename(__file__)):
+        sys.exit()
+
     app = QApplication(sys.argv)
     if sys.platform == "win32":
                 if datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S"):
@@ -324,4 +337,5 @@ v 0.9       : 250318        : Added code to flash the tray icon when buttons tur
 v 0.9(a)    : 250319        : Minor UI/display tweaks.
 v 0.9(b)    : 250320        : More minor tweaks to how alerts display.
 v 1.0       : 250320        : Added custom task bar icons.
+v 1.01      : 250321        : Added check to prevent multiple copies from running.
 """

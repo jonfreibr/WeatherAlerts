@@ -49,7 +49,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '1.01'
+progver = '1.02'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -209,18 +209,15 @@ class MainWindow(QMainWindow):
         self.display_appomattox(self.Appomattox.update())
 
     def display_nelson(self, response):
-        self.nout = DataWindow(response)
-        self.nout.move(50, 150)
+        self.nout = DataWindow(response, "Nelson")
         self.nout.show()
 
     def display_amherst(self, response):
-        self.amout = DataWindow(response)
-        self.amout.move(350, 130)
+        self.amout = DataWindow(response, "Amherst")
         self.amout.show()
 
     def display_appomattox(self, response):
-        self.apout = DataWindow(response)
-        self.apout.move(700, 110)
+        self.apout = DataWindow(response, "Appomattox")
         self.apout.show()
 
     def do_update(self):
@@ -268,13 +265,18 @@ class MainWindow(QMainWindow):
 
 # --------------------------------------------------
 class DataWindow(QWidget):
-    def __init__(self, response):
+    def __init__(self, response, which):
         super().__init__()
         self.response = response
+        self.which = which
+        self.whichPos = which+'pos'
+        self.whichSize = which+'size'
         self.setWindowTitle("Current Alerts")
         self.setWindowIcon(QIcon('exclamation-diamond-frame.png'))
         self.setContentsMargins(10, 10, 10, 10)
-        self.setGeometry(30, 30, 655, 600)
+        self.settings = QSettings( "Blue Ridge Medical Center", 'Weather Alert Widget')
+        self.resize(self.settings.value(self.whichSize, QSize(655, 600)))
+        self.move(self.settings.value(self.whichPos, QPoint(50, 150)))
         self.setStyleSheet(f'background-color: {brmc_medium_blue}; color: black')
         layout = QHBoxLayout()
 
@@ -300,6 +302,11 @@ class DataWindow(QWidget):
         self.text_edit.setReadOnly(True)
         layout.addWidget(self.text_edit)
         self.setLayout(layout)
+
+    def closeEvent(self, a0):
+        self.settings.setValue(self.whichSize, self.size())
+        self.settings.setValue(self.whichPos, self.pos())
+        return super().closeEvent(a0)
 
 # --------------------------------------------------
 if __name__ == '__main__':
@@ -338,4 +345,5 @@ v 0.9(a)    : 250319        : Minor UI/display tweaks.
 v 0.9(b)    : 250320        : More minor tweaks to how alerts display.
 v 1.0       : 250320        : Added custom task bar icons.
 v 1.01      : 250321        : Added check to prevent multiple copies from running.
+v 1.02      : 250402        : Alert display windows now remember their location on exit.
 """

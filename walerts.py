@@ -49,7 +49,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '1.02'
+progver = '1.03'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -136,7 +136,7 @@ class Location:
                 self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
                 self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
             except:
-                self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
+                return self.response # the old response
             return self.response # the new response
         else:
             return self.response # the last response retrieved
@@ -346,4 +346,6 @@ v 0.9(b)    : 250320        : More minor tweaks to how alerts display.
 v 1.0       : 250320        : Added custom task bar icons.
 v 1.01      : 250321        : Added check to prevent multiple copies from running.
 v 1.02      : 250402        : Alert display windows now remember their location on exit.
+v 1.03      : 250408        : Updated Location class to return the last retrieved response if the api request fails -- this way a failure won't
+                            : clear any alerts.
 """

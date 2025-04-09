@@ -285,7 +285,7 @@ class DataWindow(QWidget):
         self.text_edit = QTextEdit()
         self.text_edit.setStyleSheet(f'background-color: {brmc_gold}; color: black')
         if 'title' in self.response.keys(): self.text_edit.insertPlainText(self.response['title']+'\n')
-        if 'updated' in self.response.keys(): self.text_edit.insertPlainText("Last NWS Update: " + self.response['updated']+'\n')
+        if 'updated' in self.response.keys(): self.text_edit.insertPlainText("Last NWS Update: " + self.response['updated']+' (GMT)\n')
         self.text_edit.insertPlainText("Content refreshed: " + self.response['Retrieved']+'\n')
         self.text_edit.insertPlainText(divLine+'\n')
         if 'features' in self.response.keys():

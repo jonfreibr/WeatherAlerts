@@ -49,7 +49,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '1.03'
+progver = '1.04β'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -122,6 +122,7 @@ class Location:
             self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
         except:
             self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
+        self.last_response = self.response
 
     def __str__(self):
         return f"{self.zone}({self.name})"
@@ -132,6 +133,7 @@ class Location:
     def update(self):
         if self.timer.check() > 300: # Time (in seconds) minimum between refreshes
             self.timer.reset()
+            self.last_response = self.response
             try:
                 self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
                 self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
@@ -140,6 +142,20 @@ class Location:
             return self.response # the new response
         else:
             return self.response # the last response retrieved
+        
+    def is_new(self):
+        if self.last_response['updated'] == self.response['updated']:
+            return False
+        else:
+            return True
+        
+    def num_alerts(self):
+        self.alerts = 0
+        if 'features' in self.response.keys():
+            for i in self.response['features']:
+                self.alerts += 1
+        return self.alerts
+
 
 # --------------------------------------------------
 class MainWindow(QMainWindow):
@@ -195,9 +211,11 @@ class MainWindow(QMainWindow):
         button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
 
     def button_red(self, button):
+        button.setStyleSheet(f'background-color: red; color: black')
+
+    def bring_forward(self):
         self.raise_()
         self.activateWindow()
-        button.setStyleSheet(f'background-color: red; color: black')
 
     def pn(self):
         self.display_nelson(self.Nelson.update())
@@ -227,36 +245,36 @@ class MainWindow(QMainWindow):
         self.nelson_response = self.Nelson.update()
         self.button_normal(self.n_button)
         self.n_button.setText("Nelson")
-        i = 0
-        if 'features' in self.nelson_response.keys():
-            for x in self.nelson_response['features']:
-                i += 1
-                self.button_red(self.n_button)
-                self.n_button.setText(f"Nelson ({i})")
+        self.n_alerts = self.Nelson.num_alerts()
+        if self.n_alerts > 0:
+            self.button_red(self.n_button)
+            self.n_button.setText(f"Nelson ({self.n_alerts})")
+        if self.Nelson.is_new():
+            self.bring_forward(self)
         # Update Amherst
         self.button_grey(self.am_button)
         self.am_button.setText("Updating")
         self.amherst_response = self.Amherst.update()
         self.button_normal(self.am_button)
         self.am_button.setText("Amherst")
-        i = 0
-        if 'features' in self.amherst_response.keys():
-            for x in self.amherst_response['features']:
-                i += 1
-                self.button_red(self.am_button)
-                self.am_button.setText(f"Amherst ({i})")
+        self.am_alerts = self.Amherst.num_alerts()
+        if self.am_alerts > 0:
+            self.button_red(self.am_button)
+            self.am_button.setText(f"Amherst ({self.am_alerts})")
+        if self.Amherst.is_new():
+            self.bring_forward(self)
         # Update Appomattox
         self.button_grey(self.ap_button)
         self.ap_button.setText("Updating")
         self.appomattox_response = self.Appomattox.update()
         self.button_normal(self.ap_button)
         self.ap_button.setText("Appomattox")
-        i = 0
-        if 'features' in self.appomattox_response.keys():
-            for x in self.appomattox_response['features']:
-                i += 1
-                self.button_red(self.ap_button)
-                self.ap_button.setText(f"Appomattox ({i})")
+        self.ap_alerts = self.Appomattox.num_alerts()
+        if self.ap_alerts > 0:
+            self.button_red(self.ap_button)
+            self.ap_button.setText(f"Appomattox ({self.ap_alerts})")
+        if self.Appomattox.is_new():
+            self.bring_forward(self)
     
     def closeEvent(self, a0):
         self.settings.setValue('MainWindowSize', self.size())
@@ -348,4 +366,6 @@ v 1.01      : 250321        : Added check to prevent multiple copies from runnin
 v 1.02      : 250402        : Alert display windows now remember their location on exit.
 v 1.03      : 250408        : Updated Location class to return the last retrieved response if the api request fails -- this way a failure won't
                             : clear any alerts.
+v 1.04β     : 250411        : Updated Location class and added logic to button updates -- app should now only attempt to gain focus when there is 
+                            : actually a new alert -- not every minute when an alert is active.
 """

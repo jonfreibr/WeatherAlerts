@@ -8,3 +8,4 @@
 * Buttons turn red when alerts are present
 * Buttons show the number of alerts per location.
 * Each location's alerts open to their own window.
+* All windows remember their size and location.

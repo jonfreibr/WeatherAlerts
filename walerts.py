@@ -250,7 +250,7 @@ class MainWindow(QMainWindow):
             self.button_red(self.n_button)
             self.n_button.setText(f"Nelson ({self.n_alerts})")
         if self.Nelson.is_new():
-            self.bring_forward(self)
+            self.bring_forward()
         # Update Amherst
         self.button_grey(self.am_button)
         self.am_button.setText("Updating")
@@ -262,7 +262,7 @@ class MainWindow(QMainWindow):
             self.button_red(self.am_button)
             self.am_button.setText(f"Amherst ({self.am_alerts})")
         if self.Amherst.is_new():
-            self.bring_forward(self)
+            self.bring_forward()
         # Update Appomattox
         self.button_grey(self.ap_button)
         self.ap_button.setText("Updating")
@@ -274,7 +274,7 @@ class MainWindow(QMainWindow):
             self.button_red(self.ap_button)
             self.ap_button.setText(f"Appomattox ({self.ap_alerts})")
         if self.Appomattox.is_new():
-            self.bring_forward(self)
+            self.bring_forward()
     
     def closeEvent(self, a0):
         self.settings.setValue('MainWindowSize', self.size())
@@ -308,11 +308,12 @@ class DataWindow(QWidget):
         self.text_edit.insertPlainText(divLine+'\n')
         if 'features' in self.response.keys():
                 for x in self.response['features']:
-                        self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n\n')
-                        self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n\n')
-                        self.text_edit.insertPlainText(str(x['properties']['description']) + '\n')
-                        self.text_edit.insertPlainText(str(x['properties']['instruction']) + '\n')
-                        self.text_edit.insertPlainText(divLine + '\n')
+                    self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n\n')
+                    self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n\n')
+                    self.text_edit.insertPlainText(str(x['properties']['description']) + '\n')
+                    self.text_edit.insertPlainText(str(x['properties']['instruction']) + '\n')
+                    self.text_edit.insertPlainText(divLine + '\n')
+        self.text_edit.insertPlainText('End of Alerts')
                         
         self.cursor = self.text_edit.textCursor()
         self.cursor.setPosition(0)
@@ -368,4 +369,5 @@ v 1.03      : 250408        : Updated Location class to return the last retrieve
                             : clear any alerts.
 v 1.04β     : 250411        : Updated Location class and added logic to button updates -- app should now only attempt to gain focus when there is 
                             : actually a new alert -- not every minute when an alert is active.
+            : 250414        : Small tweak to v 1.04β update to eliminate errors.
 """

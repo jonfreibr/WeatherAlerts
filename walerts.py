@@ -249,8 +249,8 @@ class MainWindow(QMainWindow):
         if self.n_alerts > 0:
             self.button_red(self.n_button)
             self.n_button.setText(f"Nelson ({self.n_alerts})")
-        if self.Nelson.is_new():
-            self.bring_forward()
+            if self.Nelson.is_new():
+                self.bring_forward()
         # Update Amherst
         self.button_grey(self.am_button)
         self.am_button.setText("Updating")
@@ -261,8 +261,8 @@ class MainWindow(QMainWindow):
         if self.am_alerts > 0:
             self.button_red(self.am_button)
             self.am_button.setText(f"Amherst ({self.am_alerts})")
-        if self.Amherst.is_new():
-            self.bring_forward()
+            if self.Amherst.is_new():
+                self.bring_forward()
         # Update Appomattox
         self.button_grey(self.ap_button)
         self.ap_button.setText("Updating")
@@ -273,8 +273,8 @@ class MainWindow(QMainWindow):
         if self.ap_alerts > 0:
             self.button_red(self.ap_button)
             self.ap_button.setText(f"Appomattox ({self.ap_alerts})")
-        if self.Appomattox.is_new():
-            self.bring_forward()
+            if self.Appomattox.is_new():
+                self.bring_forward()
     
     def closeEvent(self, a0):
         self.settings.setValue('MainWindowSize', self.size())

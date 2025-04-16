@@ -17,6 +17,8 @@ import psutil
 import atexit
 import requests
 import subprocess
+if sys.platform == "win32":
+    import winsound
 
 
 from datetime import datetime
@@ -49,7 +51,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '1.04β'
+progver = '1.05'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -216,6 +218,10 @@ class MainWindow(QMainWindow):
     def bring_forward(self):
         self.raise_()
         self.activateWindow()
+        if sys.platform == "win32":
+            frequency = 2500
+            duration = 250
+            winsound.Beep(frequency, duration)
 
     def pn(self):
         self.display_nelson(self.Nelson.update())
@@ -370,4 +376,5 @@ v 1.03      : 250408        : Updated Location class to return the last retrieve
 v 1.04β     : 250411        : Updated Location class and added logic to button updates -- app should now only attempt to gain focus when there is 
                             : actually a new alert -- not every minute when an alert is active.
             : 250414        : Small tweak to v 1.04β update to eliminate errors.
+v 1.05      : 250415        : Windows only - added a beep when window wants focus.
 """

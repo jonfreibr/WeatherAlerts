@@ -149,6 +149,7 @@ class Location:
         if self.last_response['updated'] == self.response['updated']:
             return False
         else:
+            self.last_response = self.response # so we don't have repeated alerts
             return True
         
     def num_alerts(self):

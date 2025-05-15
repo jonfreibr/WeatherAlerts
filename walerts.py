@@ -51,7 +51,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '1.05'
+progver = '1.07'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -310,7 +310,7 @@ class DataWindow(QWidget):
         self.text_edit = QTextEdit()
         self.text_edit.setStyleSheet(f'background-color: {brmc_gold}; color: black')
         if 'title' in self.response.keys(): self.text_edit.insertPlainText(self.response['title']+'\n')
-        if 'updated' in self.response.keys(): self.text_edit.insertPlainText("Last NWS Update: " + self.response['updated']+' (GMT)\n')
+        if 'updated' in self.response.keys(): self.text_edit.insertPlainText("Last NWS Update: " + datetime.fromisoformat(self.response['updated']).astimezone(tz_NY).strftime("%m/%d/%y @ %H:%M") + '\n')
         self.text_edit.insertPlainText("Content refreshed: " + self.response['Retrieved']+'\n')
         self.text_edit.insertPlainText(divLine+'\n')
         if 'features' in self.response.keys():
@@ -341,14 +341,17 @@ if __name__ == '__main__':
         sys.exit()
 
     app = QApplication(sys.argv)
-    if sys.platform == "win32":
-                if datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S"):
-                        atexit.register(update_app)
-                        dialog = UpdateDialog()
-                        if dialog.exec():
-                            sys.exit()
-                        else:
-                            atexit.unregister(update_app)
+    try:
+        if sys.platform == "win32":
+                    if datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S"):
+                            atexit.register(update_app)
+                            dialog = UpdateDialog()
+                            if dialog.exec():
+                                sys.exit()
+                            else:
+                                atexit.unregister(update_app)
+    except:
+        pass
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
@@ -378,4 +381,6 @@ v 1.04β     : 250411        : Updated Location class and added logic to button 
                             : actually a new alert -- not every minute when an alert is active.
             : 250414        : Small tweak to v 1.04β update to eliminate errors.
 v 1.05      : 250415        : Windows only - added a beep when window wants focus.
+v 1.06      : 250513        : Updated display of NWS update to local time zone.
+v 1.07      : 250515        : Network unavailable won't prevent launch checking for unreachable file for upgrade check
 """

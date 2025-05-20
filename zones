@@ -363355,7 +363355,6 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/K7W4%20",
                     "https://api.weather.gov/stations/KCHO"
                 ],
                 "radarStation": "LWX"
@@ -363387,7 +363386,6 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/K7W4%20",
                     "https://api.weather.gov/stations/KCHO"
                 ],
                 "radarStation": "LWX"
@@ -364061,7 +364059,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KW81"
                 ],
                 "radarStation": "AKQ"
             }
@@ -364092,7 +364090,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KW81"
                 ],
                 "radarStation": "AKQ"
             }
@@ -364123,7 +364121,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KCHO"
                 ],
                 "radarStation": "AKQ"
             }
@@ -364154,7 +364152,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KCHO"
                 ],
                 "radarStation": "AKQ"
             }
@@ -364371,7 +364369,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KW81"
                 ],
                 "radarStation": "RAX"
             }
@@ -364402,7 +364400,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KW81"
                 ],
                 "radarStation": "RAX"
             }
@@ -364433,7 +364431,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KW81"
                 ],
                 "radarStation": "AKQ"
             }
@@ -364464,7 +364462,7 @@
                     "America/New_York"
                 ],
                 "observationStations": [
-                    "https://api.weather.gov/stations/KFVX"
+                    "https://api.weather.gov/stations/KW81"
                 ],
                 "radarStation": "AKQ"
             }

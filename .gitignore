@@ -161,3 +161,5 @@ walerts.0.7.PySimpleGUI.py
 sample_alert*
 Thumbs.db
 ~$*
+*.save
+

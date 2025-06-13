@@ -51,7 +51,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.0'
+progver = '2.01'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -319,17 +319,14 @@ if __name__ == '__main__':
         sys.exit()
 
     app = QApplication(sys.argv)
-    try:
-        if sys.platform == "win32":
-                    if datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S"):
-                            atexit.register(update_app)
-                            dialog = UpdateDialog()
-                            if dialog.exec():
-                                sys.exit()
-                            else:
+    if sys.platform == "win32":
+                if datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S"):
+                        atexit.register(update_app)
+                        dialog = UpdateDialog()
+                        if dialog.exec():
+                            sys.exit()
+                        else:
                                 atexit.unregister(update_app)
-    except:
-        pass
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
@@ -365,4 +362,5 @@ v 1.06      : 250513        : Updated display of NWS update to local time zone.
 v 1.07      : 250515        : Network unavailable won't prevent launch checking for unreachable file for upgrade check
 v 2.0       : 250613        : Major refactoring -- moved all functionality possible into the Location class to enable easier customization of
                             :   Locations. Updated to include Charlottesville & Lynchburg.
+v 2.01      : 250613        : Minor tweak to automatic upgrade scheme.
 """

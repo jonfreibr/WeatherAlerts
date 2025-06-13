@@ -15,7 +15,8 @@
 
 Zones are maintained at https://api.weather.gov/zones
 
-zoneparse.py will convert the JSON file to a CSV file
+zoneparse.py will convert the JSON file to a CSV file.
+
 Zones.xlsx updates from zones.csv
 
 ### Customization

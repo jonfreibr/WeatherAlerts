@@ -228,11 +228,16 @@ class MainWindow(QMainWindow):
         container = QWidget()
         layout = QHBoxLayout()
 
+        # Create location object
+
         self.cville = Location("VAC540", "Charlottesville")
         self.nelson = Location("VAC125", "Nelson")
         self.amherst = Location("VAC009", "Amherst")
         self.lburg = Location("VAC680", "Lynchburg")
         self.appomattox = Location("VAC011", "Appomattox")
+
+        # Add location object to layout
+
         layout.addWidget(self.cville.get_button())
         layout.addWidget(self.nelson.get_button())
         layout.addWidget(self.amherst.get_button())
@@ -246,7 +251,7 @@ class MainWindow(QMainWindow):
         timer.timeout.connect(self.do_update)
         timer.start(60000)  # milliseconds
 
-    def do_update(self):
+    def do_update(self):    # Update all location objects
         self.cville.update()
         self.nelson.update()
         self.amherst.update()

@@ -9,17 +9,17 @@ Purpose : To poll the National Weather Service for location specific alerts
         : Version change log at EoF.
 """
 
-import os
-import sys
-import time
-import pytz
-import psutil
 import atexit
+import os
+import psutil
+import pytz
 import requests
 import subprocess
+import sys
+import time
+
 if sys.platform == "win32":
     import winsound
-
 
 from datetime import datetime
 
@@ -37,6 +37,7 @@ from PySide6.QtCore import (
     QPoint,
     QSize,
 )
+
 from PySide6.QtWidgets import (
     QWidget,
     QLabel,
@@ -47,11 +48,10 @@ from PySide6.QtWidgets import (
     QPushButton,
     QHBoxLayout,
     QVBoxLayout,
-    QPushButton,
     QDialogButtonBox,
 )
 
-progver = '1.07'
+progver = '2.0'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -60,7 +60,8 @@ brmc_gold = '#ffcf01'
 brmc_rust = '#ce7067'
 brmc_warm_grey = '#9a8b7d'
 
-# --------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------
+
 class UpdateDialog(QDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -81,7 +82,8 @@ class UpdateDialog(QDialog):
         layout.addWidget(button_box)
         self.setLayout(layout)
 
-# --------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------
+
 def is_running(script):
     for q in psutil.process_iter():
         if q.name().startswith('python'):
@@ -90,13 +92,15 @@ def is_running(script):
                 return True
             
     return False
-            
-# --------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
 def update_app():
     if sys.platform == "win32":
         subprocess.Popen(["cmd", "/c", "H:/_BRMCApps/WeatherAlerts/install.bat", "/min"], stdout=None, stderr=None)
-        
-# --------------------------------------------------
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
 class Timer:
     def __init__(self):
         self.then = time.time()
@@ -107,7 +111,8 @@ class Timer:
     def check(self):
         return time.time() - self.then
     
-# --------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------
+
 class Location:
 
     headers = {
@@ -119,6 +124,9 @@ class Location:
         self.name = name
         self.response = None
         self.timer = Timer()
+        self.button = QPushButton(self.name)
+        self.button.clicked.connect(self.display)
+        self.button_normal()
         try:
             self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
             self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
@@ -126,23 +134,43 @@ class Location:
             self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
         self.last_response = self.response
 
+        self.update()   # get everything right on startup
+
     def __str__(self):
-        return f"{self.zone}({self.name})"
+        return f"{self.zone} {self.name}"
     
     def name(self):
         return f"{self.name}"
     
     def update(self):
+
+        self.button_grey()
+        self.button.setText("Updating")
+        self.get_data()
+        self.button_normal()
+        self.button.setText(f"{self.name}")
+        self.alerts = self.num_alerts()
+        if self.alerts > 0:
+            self.button_red()
+            self.button.setText(f"{self.name} ({self.alerts})")
+            if self.is_new():
+                self.bring_forward()
+        
+        
+    def get_data(self):
         if self.timer.check() > 300: # Time (in seconds) minimum between refreshes
             self.timer.reset()
             self.last_response = self.response
             try:
                 self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
                 self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
+                
             except:
                 return self.response # the old response
             return self.response # the new response
         else:
+            self.button_normal()
+            self.button.setText(f"{self.name}")
             return self.response # the last response retrieved
         
     def is_new(self):
@@ -158,63 +186,22 @@ class Location:
             for i in self.response['features']:
                 self.alerts += 1
         return self.alerts
+    
+    def display(self):
+        self.out = DataWindow(self.response, self.name)
+        self.out.show()
 
+    def get_button(self):
+        return self.button
 
-# --------------------------------------------------
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def button_grey(self):
+        self.button.setStyleSheet(f'background-color: {brmc_warm_grey}; color: {brmc_gold}')
 
-        self.settings = QSettings( "Blue Ridge Medical Center", 'Weather Alert Widget')
-        self.resize(self.settings.value('MainWindowSize', QSize(450, 50)))
-        self.move(self.settings.value('MainWindowPos', QPoint(50, 50)))
+    def button_normal(self):
+        self.button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
 
-        self.setStyleSheet(f'background-color: {brmc_medium_blue}')
-
-        self.setWindowTitle(f"Weather Alerts version {progver}")
-        self.setWindowIcon(QIcon('weather-lightning.png'))
-        container = QWidget()
-        layout = QHBoxLayout()
-
-        self.Nelson = Location("VAC125", "Nelson")
-        self.nelson_response = self.Nelson.update()
-        self.n_button = QPushButton("Nelson")
-        self.n_button.clicked.connect(self.pn)
-        self.button_normal(self.n_button)
-        layout.addWidget(self.n_button)
-
-        self.Amherst = Location("VAC009", "Amherst")
-        self.amherst_response = self.Amherst.update()
-        self.am_button = QPushButton("Amherst")
-        self.am_button.clicked.connect(self.pam)
-        self.button_normal(self.am_button)
-        layout.addWidget(self.am_button)
-
-        self.Appomattox = Location("VAC011", "Appomattox")
-        self.appomattox_response = self.Appomattox.update()
-        self.ap_button = QPushButton("Appomattox")
-        self.ap_button.clicked.connect(self.pap)
-        self.button_normal(self.ap_button)
-        layout.addWidget(self.ap_button)
-
-        self.do_update() # Get the buttons right on startup
-        
-        n_timer = QTimer(self)
-        n_timer.timeout.connect(self.do_update)
-        n_timer.start(60000)
-       
-        container.setLayout(layout)
-
-        self.setCentralWidget(container)
-
-    def button_grey(self, button):
-        button.setStyleSheet(f'background-color: {brmc_warm_grey}; color {brmc_gold}')
-
-    def button_normal(self, button):
-        button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
-
-    def button_red(self, button):
-        button.setStyleSheet(f'background-color: red; color: black')
+    def button_red(self):
+        self.button.setStyleSheet('background-color: red; color: black')
 
     def bring_forward(self):
         self.raise_()
@@ -224,71 +211,56 @@ class MainWindow(QMainWindow):
             duration = 250
             winsound.Beep(frequency, duration)
 
-    def pn(self):
-        self.display_nelson(self.Nelson.update())
+#--------------------------------------------------------------------------------------------------------------------------------
 
-    def pam(self):
-        self.display_amherst(self.Amherst.update())
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
-    def pap(self):
-        self.display_appomattox(self.Appomattox.update())
+        self.settings = QSettings("Blue Ridge Medical Center", "Weather Alert Widget")
+        self.resize(self.settings.value('MainWindowSize', QSize(450, 50)))
+        self.move(self.settings.value('MainWindowPos', QPoint(50, 50)))
 
-    def display_nelson(self, response):
-        self.nout = DataWindow(response, "Nelson")
-        self.nout.show()
+        self.setStyleSheet(f'background-color: {brmc_medium_blue}')
+        
+        self.setWindowTitle(f'Weather Alerts version {progver}')
+        self.setWindowIcon(QIcon('weather-lightning.png'))
+        container = QWidget()
+        layout = QHBoxLayout()
 
-    def display_amherst(self, response):
-        self.amout = DataWindow(response, "Amherst")
-        self.amout.show()
+        self.cville = Location("VAC540", "Charlottesville")
+        self.nelson = Location("VAC125", "Nelson")
+        self.amherst = Location("VAC009", "Amherst")
+        self.lburg = Location("VAC680", "Lynchburg")
+        self.appomattox = Location("VAC011", "Appomattox")
+        layout.addWidget(self.cville.get_button())
+        layout.addWidget(self.nelson.get_button())
+        layout.addWidget(self.amherst.get_button())
+        layout.addWidget(self.lburg.get_button())
+        layout.addWidget(self.appomattox.get_button())
 
-    def display_appomattox(self, response):
-        self.apout = DataWindow(response, "Appomattox")
-        self.apout.show()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+        timer = QTimer(self)
+        timer.timeout.connect(self.do_update)
+        timer.start(60000)  # milliseconds
 
     def do_update(self):
-        # Update Nelson
-        self.button_grey(self.n_button)
-        self.n_button.setText("Updating")
-        self.nelson_response = self.Nelson.update()
-        self.button_normal(self.n_button)
-        self.n_button.setText("Nelson")
-        self.n_alerts = self.Nelson.num_alerts()
-        if self.n_alerts > 0:
-            self.button_red(self.n_button)
-            self.n_button.setText(f"Nelson ({self.n_alerts})")
-            if self.Nelson.is_new():
-                self.bring_forward()
-        # Update Amherst
-        self.button_grey(self.am_button)
-        self.am_button.setText("Updating")
-        self.amherst_response = self.Amherst.update()
-        self.button_normal(self.am_button)
-        self.am_button.setText("Amherst")
-        self.am_alerts = self.Amherst.num_alerts()
-        if self.am_alerts > 0:
-            self.button_red(self.am_button)
-            self.am_button.setText(f"Amherst ({self.am_alerts})")
-            if self.Amherst.is_new():
-                self.bring_forward()
-        # Update Appomattox
-        self.button_grey(self.ap_button)
-        self.ap_button.setText("Updating")
-        self.appomattox_response = self.Appomattox.update()
-        self.button_normal(self.ap_button)
-        self.ap_button.setText("Appomattox")
-        self.ap_alerts = self.Appomattox.num_alerts()
-        if self.ap_alerts > 0:
-            self.button_red(self.ap_button)
-            self.ap_button.setText(f"Appomattox ({self.ap_alerts})")
-            if self.Appomattox.is_new():
-                self.bring_forward()
-    
+        self.cville.update()
+        self.nelson.update()
+        self.amherst.update()
+        self.lburg.update()
+        self.appomattox.update()
+        
+
     def closeEvent(self, a0):
         self.settings.setValue('MainWindowSize', self.size())
         self.settings.setValue('MainWindowPos', self.pos())
         return super().closeEvent(a0)
 
-# --------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------
+
 class DataWindow(QWidget):
     def __init__(self, response, which):
         super().__init__()
@@ -334,7 +306,8 @@ class DataWindow(QWidget):
         self.settings.setValue(self.whichPos, self.pos())
         return super().closeEvent(a0)
 
-# --------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------
+
 if __name__ == '__main__':
     
     if is_running(os.path.basename(__file__)):
@@ -355,6 +328,8 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+#--------------------------------------------------------------------------------------------------------------------------------
 
 """
 Change log:
@@ -383,4 +358,6 @@ v 1.04β     : 250411        : Updated Location class and added logic to button 
 v 1.05      : 250415        : Windows only - added a beep when window wants focus.
 v 1.06      : 250513        : Updated display of NWS update to local time zone.
 v 1.07      : 250515        : Network unavailable won't prevent launch checking for unreachable file for upgrade check
+v 2.0       : 250613        : Major refactoring -- moved all functionality possible into the Location class to enable easier customization of
+                            :   Locations. Updated to include Charlottesville & Lynchburg.
 """

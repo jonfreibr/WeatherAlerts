@@ -51,7 +51,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.01'
+progver = '2.1'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -59,6 +59,16 @@ brmc_medium_blue = '#73afb6'
 brmc_gold = '#ffcf01'
 brmc_rust = '#ce7067'
 brmc_warm_grey = '#9a8b7d'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+locations = {"VAC540": "Charlottesville", 
+             "VAC125": "Nelson", 
+             "VAC009": "Amherst", 
+             "VAC680": "Lynchburg", 
+             "VAC011": "Appomattox"}
+buttons = []
+
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -230,19 +240,13 @@ class MainWindow(QMainWindow):
 
         # Create location object
 
-        self.cville = Location("VAC540", "Charlottesville")
-        self.nelson = Location("VAC125", "Nelson")
-        self.amherst = Location("VAC009", "Amherst")
-        self.lburg = Location("VAC680", "Lynchburg")
-        self.appomattox = Location("VAC011", "Appomattox")
+        for i in locations.keys():
+            buttons.append(Location(i, locations[i]))
 
         # Add location object to layout
 
-        layout.addWidget(self.cville.get_button())
-        layout.addWidget(self.nelson.get_button())
-        layout.addWidget(self.amherst.get_button())
-        layout.addWidget(self.lburg.get_button())
-        layout.addWidget(self.appomattox.get_button())
+        for j in buttons:
+            layout.addWidget(j.get_button())
 
         container.setLayout(layout)
         self.setCentralWidget(container)
@@ -252,11 +256,8 @@ class MainWindow(QMainWindow):
         timer.start(60000)  # milliseconds
 
     def do_update(self):    # Update all location objects
-        self.cville.update()
-        self.nelson.update()
-        self.amherst.update()
-        self.lburg.update()
-        self.appomattox.update()
+        for k in buttons:
+            k.update()
         
 
     def closeEvent(self, a0):
@@ -363,4 +364,5 @@ v 1.07      : 250515        : Network unavailable won't prevent launch checking 
 v 2.0       : 250613        : Major refactoring -- moved all functionality possible into the Location class to enable easier customization of
                             :   Locations. Updated to include Charlottesville & Lynchburg.
 v 2.01      : 250613        : Minor tweak to automatic upgrade scheme.
+v 2.1       : 250617        : Refactored to configure locations dynamically from a dictionary.
 """

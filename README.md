@@ -21,5 +21,5 @@ Zones.xlsx updates from zones.csv
 
 ### Customization
 
-In the Class MainWIndow, create your locations, add them to the layout with their .get_button() method, and then add their .update() method to the do_update() subroutine.
+Update the dictionary at the top of the file to include the locations you want monitored.
 

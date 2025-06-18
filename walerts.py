@@ -49,10 +49,11 @@ from PySide6.QtWidgets import (
     QPushButton,
     QHBoxLayout,
     QVBoxLayout,
+    QGridLayout,
     QDialogButtonBox,
 )
 
-progver = '2.3'
+progver = '2.4'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -231,17 +232,21 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f'Weather Alerts version {progver}')
         self.setWindowIcon(QIcon('weather-lightning.png'))
         container = QWidget()
-        layout = QHBoxLayout()
+        layout = QGridLayout()
 
         # Create location object
-
         for i in locations.keys():
             buttons.append(Location(i, locations[i]))
 
         # Add location object to layout
-
+        x = 0
+        y = 0
         for j in buttons:
-            layout.addWidget(j.get_button())
+            layout.addWidget(j.get_button(), y, x)
+            x += 1
+            if x >= 12:
+                x = 0
+                y += 1
 
         container.setLayout(layout)
         self.setCentralWidget(container)
@@ -371,4 +376,5 @@ v 2.1       : 250617        : Refactored to configure locations dynamically from
 v 2.2       : 250618        : Reads location configuration from file: walerts.json. On failure will display default
                             :   locations (Charlottesville, Nelson, Amherst, Lynchburg, & Appomattox)
 v 2.3       : 250618        : Fixed issue with raise_() and activateWindow() being in the wrong place
+v 2.4       : 250618        : Changed from QHBoxLayout to QGridLayout, building rows of 12 buttons each.
 """

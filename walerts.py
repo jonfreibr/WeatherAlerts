@@ -52,7 +52,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.2'
+progver = '2.3'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -169,9 +169,6 @@ class Location:
         if self.alerts > 0:
             self.button_red()
             self.button.setText(f"{self.name} ({self.alerts})")
-            if self.is_new():
-                self.bring_forward()
-        
         
     def get_data(self):
         if self.timer.check() > 300: # Time (in seconds) minimum between refreshes
@@ -219,14 +216,6 @@ class Location:
     def button_red(self):
         self.button.setStyleSheet('background-color: red; color: black')
 
-    def bring_forward(self):
-        self.raise_()
-        self.activateWindow()
-        if sys.platform == "win32":
-            frequency = 2500
-            duration = 250
-            winsound.Beep(frequency, duration)
-
 #--------------------------------------------------------------------------------------------------------------------------------
 
 class MainWindow(QMainWindow):
@@ -264,6 +253,14 @@ class MainWindow(QMainWindow):
     def do_update(self):    # Update all location objects
         for k in buttons:
             k.update()
+            if k.is_new():
+                self.raise_()
+                self.activateWindow()
+                if sys.platform == "win32":
+                    frequency = 2500
+                    duration = 250
+                    winsound.Beep(frequency, duration)
+                
         
 
     def closeEvent(self, a0):
@@ -373,4 +370,5 @@ v 2.01      : 250613        : Minor tweak to automatic upgrade scheme.
 v 2.1       : 250617        : Refactored to configure locations dynamically from a dictionary.
 v 2.2       : 250618        : Reads location configuration from file: walerts.json. On failure will display default
                             :   locations (Charlottesville, Nelson, Amherst, Lynchburg, & Appomattox)
+v 2.3       : 250618        : Fixed issue with raise_() and activateWindow() being in the wrong place
 """

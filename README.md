@@ -21,5 +21,5 @@ Zones.xlsx updates from zones.csv
 
 ### Customization
 
-Update the dictionary at the top of the file to include the locations you want monitored.
+Update the dictionary in walerts.json to include the locations you want to monitor.
 

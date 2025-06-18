@@ -10,6 +10,7 @@ Purpose : To poll the National Weather Service for location specific alerts
 """
 
 import atexit
+import json
 import os
 import psutil
 import pytz
@@ -51,7 +52,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.1'
+progver = '2.2'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -62,11 +63,16 @@ brmc_warm_grey = '#9a8b7d'
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
-locations = {"VAC540": "Charlottesville", 
-             "VAC125": "Nelson", 
-             "VAC009": "Amherst", 
-             "VAC680": "Lynchburg", 
-             "VAC011": "Appomattox"}
+try:
+    with open("walerts.json", "r") as file:
+        locations = json.load(file)
+except:
+    locations = {"VAC540": "Charlottesville", 
+                "VAC125": "Nelson", 
+                "VAC009": "Amherst", 
+                "VAC680": "Lynchburg", 
+                "VAC011": "Appomattox"}
+    
 buttons = []
 
 
@@ -365,4 +371,6 @@ v 2.0       : 250613        : Major refactoring -- moved all functionality possi
                             :   Locations. Updated to include Charlottesville & Lynchburg.
 v 2.01      : 250613        : Minor tweak to automatic upgrade scheme.
 v 2.1       : 250617        : Refactored to configure locations dynamically from a dictionary.
+v 2.2       : 250618        : Reads location configuration from file: walerts.json. On failure will display default
+                            :   locations (Charlottesville, Nelson, Amherst, Lynchburg, & Appomattox)
 """

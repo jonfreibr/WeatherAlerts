@@ -12,5 +12,6 @@ copy /y "%~dp0\walerts.py" %USERPROFILE%\Walerts
 copy /y "%~dp0\WAlertWidgetDefaults.reg" %USERPROFILE%\Walerts
 copy /y "%~dp0\*.png" %USERPROFILE%\Walerts
 copy /y "%~dp0\Weather Alerts.lnk" %USERPROFILE%\Desktop
+if not exist %USERPROFILE%\Walerts\walerts.json copy /y %~dp0\walerts.json %USERPROFILE%\Walerts
 echo Done with installation
 start %USERPROFILE%"\Desktop\Weather Alerts.lnk"

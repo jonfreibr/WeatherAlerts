@@ -210,6 +210,7 @@ class Location:
     def display(self):
         self.out = DataWindow(self.response, self.name)
         self.asterisk = False
+        self.update()
         self.out.show()
 
     def get_button(self):

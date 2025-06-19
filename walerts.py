@@ -53,7 +53,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.4(a)'
+progver = '2.4(b)'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -329,13 +329,18 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     if sys.platform == "win32":
-                if datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S"):
-                        atexit.register(update_app)
-                        dialog = UpdateDialog()
-                        if dialog.exec():
-                            sys.exit()
-                        else:
-                                atexit.unregister(update_app)
+        try:
+            update = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S")
+        except:
+            update = False
+        if update:
+            atexit.register(update_app)
+            dialog = UpdateDialog()
+            if dialog.exec():
+                sys.exit()
+            else:
+                atexit.unregister(update_app)
+
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
@@ -378,4 +383,5 @@ v 2.2       : 250618        : Reads location configuration from file: walerts.js
 v 2.3       : 250618        : Fixed issue with raise_() and activateWindow() being in the wrong place
 v 2.4       : 250618        : Changed from QHBoxLayout to QGridLayout, building rows of 12 buttons each.
 v 2.4(a)    : 250619        : Changed button rows from 12 to 10.
+v 2.4(b)    : 250619        : Another tweak to fix the automatic upgrade scheme.
 """

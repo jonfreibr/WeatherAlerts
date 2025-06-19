@@ -192,6 +192,7 @@ class Location:
             return False
         else:
             self.last_response = self.response # so we don't have repeated alerts
+            self.button.setText(f"{self.name} ({self.alerts}) *")
             return True
         
     def num_alerts(self):
@@ -383,5 +384,5 @@ v 2.2       : 250618        : Reads location configuration from file: walerts.js
 v 2.3       : 250618        : Fixed issue with raise_() and activateWindow() being in the wrong place
 v 2.4       : 250618        : Changed from QHBoxLayout to QGridLayout, building rows of 12 buttons each.
 v 2.4(a)    : 250619        : Changed button rows from 12 to 10.
-v 2.4(b)    : 250619        : Another tweak to fix the automatic upgrade scheme.
+v 2.4(b)    : 250619        : Another tweak to fix the automatic upgrade scheme. Added asterisk to button display when alert is new.
 """

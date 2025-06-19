@@ -53,7 +53,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.4(b)'
+progver = '2.4(c)'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -139,6 +139,7 @@ class Location:
     def __init__(self, zone, name):
         self.zone = zone
         self.name = name
+        self.asterisk = False
         self.response = None
         self.timer = Timer()
         self.button = QPushButton(self.name)
@@ -169,7 +170,10 @@ class Location:
         self.alerts = self.num_alerts()
         if self.alerts > 0:
             self.button_red()
-            self.button.setText(f"{self.name} ({self.alerts})")
+            if self.asterisk:
+                self.button.setText(f"* {self.name} ({self.alerts})")
+            else:
+                self.button.setText(f"{self.name} ({self.alerts})")
         
     def get_data(self):
         if self.timer.check() > 300: # Time (in seconds) minimum between refreshes
@@ -192,7 +196,8 @@ class Location:
             return False
         else:
             self.last_response = self.response # so we don't have repeated alerts
-            self.button.setText(f"{self.name} ({self.alerts}) *")
+            self.asterisk = True
+            self.button.setText(f"* {self.name} ({self.alerts})")
             return True
         
     def num_alerts(self):
@@ -204,6 +209,7 @@ class Location:
     
     def display(self):
         self.out = DataWindow(self.response, self.name)
+        self.asterisk = False
         self.out.show()
 
     def get_button(self):
@@ -385,4 +391,5 @@ v 2.3       : 250618        : Fixed issue with raise_() and activateWindow() bei
 v 2.4       : 250618        : Changed from QHBoxLayout to QGridLayout, building rows of 12 buttons each.
 v 2.4(a)    : 250619        : Changed button rows from 12 to 10.
 v 2.4(b)    : 250619        : Another tweak to fix the automatic upgrade scheme. Added asterisk to button display when alert is new.
+v 2.4(c)    : 250619        : Updated asterisk to be persistent until the alert is viewed or expires.
 """

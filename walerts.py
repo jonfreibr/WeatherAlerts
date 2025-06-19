@@ -53,7 +53,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.4'
+progver = '2.4(a)'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -244,7 +244,7 @@ class MainWindow(QMainWindow):
         for j in buttons:
             layout.addWidget(j.get_button(), y, x)
             x += 1
-            if x >= 12:
+            if x >= 10:
                 x = 0
                 y += 1
 
@@ -377,4 +377,5 @@ v 2.2       : 250618        : Reads location configuration from file: walerts.js
                             :   locations (Charlottesville, Nelson, Amherst, Lynchburg, & Appomattox)
 v 2.3       : 250618        : Fixed issue with raise_() and activateWindow() being in the wrong place
 v 2.4       : 250618        : Changed from QHBoxLayout to QGridLayout, building rows of 12 buttons each.
+v 2.4(a)    : 250619        : Changed button rows from 12 to 10.
 """

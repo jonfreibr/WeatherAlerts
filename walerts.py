@@ -208,9 +208,9 @@ class Location:
         return self.alerts
     
     def display(self):
-        self.out = DataWindow(self.response, self.name)
         self.asterisk = False
         self.update()
+        self.out = DataWindow(self.response, self.name)
         self.out.show()
 
     def get_button(self):

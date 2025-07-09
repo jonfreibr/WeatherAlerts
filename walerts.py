@@ -53,7 +53,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.4(c)'
+progver = '2.4(f)'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -64,15 +64,25 @@ brmc_warm_grey = '#9a8b7d'
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
+# Configuration Information
+
+num_cols = 10
+loc_config = 'walerts.json' # If you change this, update your update_script!
+default_locations = {"VAC540": "Charlottesville", 
+                "VAC125": "Nelson County", 
+                "VAC009": "Amherst County", 
+                "VAC680": "Lynchburg", 
+                "VAC011": "Appomattox County"}
+update_source = 'H:/_BRMCApps/WeatherAlerts/walerts.py'
+update_script = 'H:/_BRMCApps/WeatherAlerts/install.bat'
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
 try:
-    with open("walerts.json", "r") as file:
+    with open(loc_config, "r") as file:
         locations = json.load(file)
 except:
-    locations = {"VAC540": "Charlottesville", 
-                "VAC125": "Nelson", 
-                "VAC009": "Amherst", 
-                "VAC680": "Lynchburg", 
-                "VAC011": "Appomattox"}
+    locations = default_locations
     
 buttons = []
 
@@ -114,7 +124,7 @@ def is_running(script):
 
 def update_app():
     if sys.platform == "win32":
-        subprocess.Popen(["cmd", "/c", "H:/_BRMCApps/WeatherAlerts/install.bat", "/min"], stdout=None, stderr=None)
+        subprocess.Popen(["cmd", "/c", update_script, "/min"], stdout=None, stderr=None)
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -192,13 +202,14 @@ class Location:
             return self.response # the last response retrieved
         
     def is_new(self):
-        if self.last_response['updated'] == self.response['updated']:
-            return False
-        else:
-            self.last_response = self.response # so we don't have repeated alerts
-            self.asterisk = True
-            self.button.setText(f"* {self.name} ({self.alerts})")
-            return True
+        if 'updated' in self.last_response.keys() and 'updated' in self.response.keys():
+            if self.last_response['updated'] == self.response['updated']:
+                return False
+            else:
+                self.last_response = self.response # so we don't have repeated alerts
+                self.asterisk = True
+                self.button.setText(f"* {self.name} ({self.alerts})")
+                return True
         
     def num_alerts(self):
         self.alerts = 0
@@ -210,7 +221,7 @@ class Location:
     def display(self):
         self.asterisk = False
         self.update()
-        self.out = DataWindow(self.response, self.name)
+        self.out = DataWindow(self.response, self.name, self.alerts)
         self.out.show()
 
     def get_button(self):
@@ -252,7 +263,7 @@ class MainWindow(QMainWindow):
         for j in buttons:
             layout.addWidget(j.get_button(), y, x)
             x += 1
-            if x >= 10:
+            if x >= num_cols:
                 x = 0
                 y += 1
 
@@ -284,13 +295,17 @@ class MainWindow(QMainWindow):
 #--------------------------------------------------------------------------------------------------------------------------------
 
 class DataWindow(QWidget):
-    def __init__(self, response, which):
+    def __init__(self, response, which, alerts):
         super().__init__()
         self.response = response
         self.which = which
         self.whichPos = which+'pos'
         self.whichSize = which+'size'
-        self.setWindowTitle("Current Alerts")
+        self.alerts = alerts
+        if self.alerts > 0:
+            self.setWindowTitle(f"Current Alerts ({self.alerts})")
+        else:
+            self.setWindowTitle(f"Current Alerts (none)")
         self.setWindowIcon(QIcon('exclamation-diamond-frame.png'))
         self.setContentsMargins(10, 10, 10, 10)
         self.settings = QSettings( "Blue Ridge Medical Center", 'Weather Alert Widget')
@@ -338,7 +353,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     if sys.platform == "win32":
         try:
-            update = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime('H:/_BRMCApps/WeatherAlerts/walerts.py')).strftime("%m/%d/%y @ %H:%M:%S")
+            update = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime("%m/%d/%y @ %H:%M:%S") < datetime.fromtimestamp(os.path.getmtime(update_source)).strftime("%m/%d/%y @ %H:%M:%S")
         except:
             update = False
         if update:
@@ -393,4 +408,7 @@ v 2.4       : 250618        : Changed from QHBoxLayout to QGridLayout, building 
 v 2.4(a)    : 250619        : Changed button rows from 12 to 10.
 v 2.4(b)    : 250619        : Another tweak to fix the automatic upgrade scheme. Added asterisk to button display when alert is new.
 v 2.4(c)    : 250619        : Updated asterisk to be persistent until the alert is viewed or expires.
+v 2.4(d)    : 250626        : Parameterized configurable items and moved them to the top of the file.
+v 2.4(e)    : 250707        : Added check to eliminate key error in is_new()
+v 2.4(f)    : 250709        : Added number of alerts to display window title (because I never remembered to scroll down!)
 """

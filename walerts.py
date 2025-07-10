@@ -53,7 +53,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.4(f)'
+progver = '2.4(g)'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -178,6 +178,8 @@ class Location:
         self.button_normal()
         self.button.setText(f"{self.name}")
         self.alerts = self.num_alerts()
+        if self.alerts == 0:
+            self.asterisk = False
         if self.alerts > 0:
             self.button_red()
             if self.asterisk:
@@ -411,4 +413,5 @@ v 2.4(c)    : 250619        : Updated asterisk to be persistent until the alert 
 v 2.4(d)    : 250626        : Parameterized configurable items and moved them to the top of the file.
 v 2.4(e)    : 250707        : Added check to eliminate key error in is_new()
 v 2.4(f)    : 250709        : Added number of alerts to display window title (because I never remembered to scroll down!)
+v 2.4(g)    : 250710        : Corrected a condition where an update with no alert would cause the interface to alert.
 """

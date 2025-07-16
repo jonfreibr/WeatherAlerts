@@ -305,9 +305,9 @@ class DataWindow(QWidget):
         self.whichSize = which+'size'
         self.alerts = alerts
         if self.alerts > 0:
-            self.setWindowTitle(f"Current Alerts ({self.alerts})")
+            self.setWindowTitle(f"Current Alerts for {self.which} ({self.alerts})")
         else:
-            self.setWindowTitle(f"Current Alerts (none)")
+            self.setWindowTitle(f"Current Alerts for {self.which} (none)")
         self.setWindowIcon(QIcon('exclamation-diamond-frame.png'))
         self.setContentsMargins(10, 10, 10, 10)
         self.settings = QSettings( "Blue Ridge Medical Center", 'Weather Alert Widget')

@@ -1,8 +1,8 @@
 # WeatherAlerts
 ## Monitor Weather Alerts and forecast for predefined locations
 
-Copyright © Blue Ridge Medical Center, 2025. All Rights Reserved
-License: GNU GPL Version 3
+* Copyright © Blue Ridge Medical Center, 2025. All Rights Reserved
+* License: GNU GPL Version 3
 
 ### Desktop widget that monitors the National Weather Service REST API for weather bulletins, alerts and warnings. Pulls daily and hourly forecasts on demand.
 

@@ -43,10 +43,10 @@ The configuration is in a JSON file and takes the format "Name":"Lattitude, Long
 
 An example file:
 
------ start of file -----
-{"Nelson County, VA":"37.7066, -78.9340, VAC125",
-"Amherst County, VA":"37.5655, -79.0637, VAC009",
-"Appomattox County, VA":"37.3673, -78.8267, VAC011"}
+----- start of file -----  
+{"Nelson County, VA":"37.7066, -78.9340, VAC125",  
+"Amherst County, VA":"37.5655, -79.0637, VAC009",  
+"Appomattox County, VA":"37.3673, -78.8267, VAC011"}  
 ----- end of file -----
 
 ## Questions, Comments, Bug Reports

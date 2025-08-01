@@ -1,7 +1,7 @@
 # WeatherAlerts
 ## Monitor Weather Alerts and forecast for predefined locations
 
-### Desktop widget that monitors the National Weather Service REST API for weather bulletins, alerts and warnings.
+### Desktop widget that monitors the National Weather Service REST API for weather bulletins, alerts and warnings. Pulls forecasts daily and hourly forecasts on demand.
 
 ### Currently monitors Nelson County, Amherst County, and Appomattox County in Virginia by default. Easily customized to monitor your locations of interest.
 

@@ -53,7 +53,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '2.4(g)'
+progver = '3.0'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -67,12 +67,10 @@ brmc_warm_grey = '#9a8b7d'
 # Configuration Information
 
 num_cols = 10
-loc_config = 'walerts.json' # If you change this, update your update_script!
-default_locations = {"VAC540": "Charlottesville", 
-                "VAC125": "Nelson County", 
-                "VAC009": "Amherst County", 
-                "VAC680": "Lynchburg", 
-                "VAC011": "Appomattox County"}
+loc_config = 'walerts.cfg' # If you change this, update your update_script!
+default_locations = {"Nelson County, VA":"37.7066,-78.9340,VAC125",
+                "Amherst County, VA":"37.5655,-79.0637,VAC009",
+                "Appomattox County, VA":"37.3673,-78.8267,VAC011"}
 update_source = 'H:/_BRMCApps/WeatherAlerts/walerts.py'
 update_script = 'H:/_BRMCApps/WeatherAlerts/install.bat'
 
@@ -146,9 +144,11 @@ class Location:
         "User-Agent": "BRMC Weather Alert Monitor, jfreivald@brmedical.com"
     }
 
-    def __init__(self, zone, name):
-        self.zone = zone
+    def __init__(self, name, lat, lon, zone):
         self.name = name
+        self.lat = lat
+        self.lon = lon
+        self.zone = zone
         self.asterisk = False
         self.response = None
         self.timer = Timer()
@@ -158,6 +158,9 @@ class Location:
         try:
             self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
             self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
+            self.point_data = requests.get(f'https://api.weather.gov/points/{self.lat},{self.lon}').json()
+            self.forecast_url = self.point_data['properties']['forecast']
+            self.hourly_url = self.point_data['properties']['forecastHourly']
         except:
             self.response = {'title': 'API Not Available!', 'updated': 'Not updated!', 'Retrieved': 'Not Retrieved'}
         self.last_response = self.response
@@ -171,7 +174,6 @@ class Location:
         return f"{self.name}"
     
     def update(self):
-
         self.button_grey()
         self.button.setText("Updating")
         self.get_data()
@@ -203,6 +205,20 @@ class Location:
             self.button.setText(f"{self.name}")
             return self.response # the last response retrieved
         
+    def get_daily(self):
+        try:
+            self.d_forecast = requests.get(f'{self.forecast_url}').json()
+        except:
+            pass
+        return self.d_forecast
+        
+    def get_hourly(self):
+        try:
+            self.h_forecast = requests.get(f'{self.hourly_url}').json()
+        except:
+            pass
+        return self.h_forecast
+
     def is_new(self):
         if 'updated' in self.last_response.keys() and 'updated' in self.response.keys():
             if self.last_response['updated'] == self.response['updated']:
@@ -223,7 +239,9 @@ class Location:
     def display(self):
         self.asterisk = False
         self.update()
-        self.out = DataWindow(self.response, self.name, self.alerts)
+        self.get_daily()
+        self.get_hourly()
+        self.out = DataWindow(self.response, self.name, self.alerts, self.d_forecast, self.h_forecast)
         self.out.show()
 
     def get_button(self):
@@ -257,7 +275,8 @@ class MainWindow(QMainWindow):
 
         # Create location object
         for i in locations.keys():
-            buttons.append(Location(i, locations[i]))
+            lat, lon, zone = locations[i].split(',')
+            buttons.append(Location(i, lat, lon, zone))
 
         # Add location object to layout
         x = 0
@@ -297,7 +316,7 @@ class MainWindow(QMainWindow):
 #--------------------------------------------------------------------------------------------------------------------------------
 
 class DataWindow(QWidget):
-    def __init__(self, response, which, alerts):
+    def __init__(self, response, which, alerts, d_forecast, h_forecast):
         super().__init__()
         self.response = response
         self.which = which
@@ -308,37 +327,85 @@ class DataWindow(QWidget):
             self.setWindowTitle(f"Current Alerts for {self.which} ({self.alerts})")
         else:
             self.setWindowTitle(f"Current Alerts for {self.which} (none)")
-        self.setWindowIcon(QIcon('exclamation-diamond-frame.png'))
+        self.d_forecast = d_forecast
+        self.h_forecast = h_forecast
         self.setContentsMargins(10, 10, 10, 10)
         self.settings = QSettings( "Blue Ridge Medical Center", 'Weather Alert Widget')
         self.resize(self.settings.value(self.whichSize, QSize(655, 600)))
         self.move(self.settings.value(self.whichPos, QPoint(50, 150)))
         self.setStyleSheet(f'background-color: {brmc_medium_blue}; color: black')
-        layout = QHBoxLayout()
+        self.alert_button = QPushButton("Alerts")
+        self.alert_button.clicked.connect(self.show_alerts)
+        self.alert_button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
+        self.daily_button = QPushButton("Daily Forecast")
+        self.daily_button.clicked.connect(self.show_daily)
+        self.daily_button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
+        self.hourly_button = QPushButton("Hourly Forecast")
+        self.hourly_button.clicked.connect(self.show_hourly)
+        self.hourly_button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
+        layout = QVBoxLayout()
+        hbox_layout = QHBoxLayout()
+        hbox_layout.addWidget(self.alert_button)
+        hbox_layout.addWidget(self.daily_button)
+        hbox_layout.addWidget(self.hourly_button)
 
-        divLine = "\n|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|\n"
+        self.divLine = "\n|-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|\n"
 
         self.text_edit = QTextEdit()
         self.text_edit.setStyleSheet(f'background-color: {brmc_gold}; color: black')
-        if 'title' in self.response.keys(): self.text_edit.insertPlainText(self.response['title']+'\n')
-        if 'updated' in self.response.keys(): self.text_edit.insertPlainText("Last NWS Update: " + datetime.fromisoformat(self.response['updated']).astimezone(tz_NY).strftime("%m/%d/%y @ %H:%M") + '\n')
-        self.text_edit.insertPlainText("Content refreshed: " + self.response['Retrieved']+'\n')
-        self.text_edit.insertPlainText(divLine+'\n')
-        if 'features' in self.response.keys():
-                for x in self.response['features']:
-                    self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n\n')
-                    self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n\n')
-                    self.text_edit.insertPlainText(str(x['properties']['description']) + '\n')
-                    self.text_edit.insertPlainText(str(x['properties']['instruction']) + '\n')
-                    self.text_edit.insertPlainText(divLine + '\n')
-        self.text_edit.insertPlainText('End of Alerts')
+
+        if self.alerts > 0:
+            self.show_alerts()
+        else:
+            self.show_daily()
                         
         self.cursor = self.text_edit.textCursor()
         self.cursor.setPosition(0)
         self.text_edit.setTextCursor(self.cursor)
         self.text_edit.setReadOnly(True)
         layout.addWidget(self.text_edit)
+        layout.addLayout(hbox_layout)
         self.setLayout(layout)
+
+    def show_alerts(self):
+        self.setWindowIcon(QIcon('exclamation-diamond-frame.png'))
+        self.text_edit.clear()
+        if 'title' in self.response.keys(): self.text_edit.insertPlainText(self.response['title']+'\n')
+        if 'updated' in self.response.keys(): self.text_edit.insertPlainText("Last NWS Update: " + datetime.fromisoformat(self.response['updated']).astimezone(tz_NY).strftime("%m/%d/%y @ %H:%M") + '\n')
+        self.text_edit.insertPlainText("Content refreshed: " + self.response['Retrieved']+'\n')
+        self.text_edit.insertPlainText(self.divLine+'\n')
+        if 'features' in self.response.keys():
+                for x in self.response['features']:
+                    self.text_edit.insertPlainText(str(x['properties']['areaDesc']) + '\n\n')
+                    self.text_edit.insertPlainText(str(x['properties']['headline']) + '\n\n')
+                    self.text_edit.insertPlainText(str(x['properties']['description']) + '\n')
+                    self.text_edit.insertPlainText(str(x['properties']['instruction']) + '\n')
+                    self.text_edit.insertPlainText(self.divLine + '\n')
+        self.text_edit.insertPlainText('End of Alerts')
+    
+    def show_daily(self):
+        self.setWindowIcon(QIcon('report--pencil.png'))
+        self.text_edit.clear()
+        for period in self.d_forecast['properties']['periods']:
+            self.text_edit.insertPlainText(str(period['name']+': '+period['shortForecast']+'\n'))
+            self.text_edit.insertPlainText(str('Temperature: '+str(period['temperature'])+' '+period['temperatureUnit']+'\n'))
+            self.text_edit.insertPlainText(str('Wind: '+str(period['windSpeed'])+' '+period['windDirection']+'\n'))
+            self.text_edit.insertPlainText(str('Chance of Precipitation: '+str(period['probabilityOfPrecipitation']['value'])+'%\n'))
+            if period['detailedForecast']:
+                self.text_edit.insertPlainText(str('Detailed Forecast: '+period['detailedForecast']+'\n'))
+            self.text_edit.insertPlainText(self.divLine)
+        self.text_edit.insertPlainText('End of Forecast')
+
+    def show_hourly(self):
+        self.setWindowIcon(QIcon('report--pencil.png'))
+        self.text_edit.clear()
+        for period in self.h_forecast['properties']['periods']:
+            self.text_edit.insertPlainText(str(period['name'] + ' ' + datetime.fromisoformat(period['startTime']).astimezone(tz_NY).strftime("%B %d, %Y @ %H:%M") + ': ' + period['shortForecast'] + ', ' + str(period['temperature']) + ' ' + period['temperatureUnit'] + ', ' + str(period['relativeHumidity']['value']) + '% humidity\n'))
+            self.text_edit.insertPlainText(str('Wind: ' + str(period['windSpeed']) + ' ' + period['windDirection'] + ', ' + 'Chance of Precipitation: ' + str(period['probabilityOfPrecipitation']['value']) + '%\n'))
+            if period['detailedForecast']:
+                self.text_edit.insertPlainText(str(period['detailedForecast']+'\n'))
+            self.text_edit.insertPlainText(self.divLine)
+        self.text_edit.insertPlainText('End of Forecast')
 
     def closeEvent(self, a0):
         self.settings.setValue(self.whichSize, self.size())
@@ -414,4 +481,5 @@ v 2.4(d)    : 250626        : Parameterized configurable items and moved them to
 v 2.4(e)    : 250707        : Added check to eliminate key error in is_new()
 v 2.4(f)    : 250709        : Added number of alerts to display window title (because I never remembered to scroll down!)
 v 2.4(g)    : 250710        : Corrected a condition where an update with no alert would cause the interface to alert.
+v 3.0       : 250721-2508?? : Major rewrite to include daily and hourly forecasts as well as alerts.
 """

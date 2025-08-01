@@ -1,9 +1,9 @@
 # WeatherAlerts
-## Monitor Weather Alerts for predefined locations
+## Monitor Weather Alerts and forecast for predefined locations
 
 ### Desktop widget that monitors the National Weather Service REST API for weather bulletins, alerts and warnings.
 
-### Currently monitors City of Charlottesville, Nelson County, Amherst County, City of Lynchburg, and Appomattox County in Virginia by default. Easily customized to monitor your locations of interest.
+### Currently monitors Nelson County, Amherst County, and Appomattox County in Virginia by default. Easily customized to monitor your locations of interest.
 
 * Buttons turn red when alerts are present
 * Buttons show the number of alerts per location.
@@ -22,5 +22,5 @@ Zones.xlsx updates from zones.csv
 
 ### Customization
 
-Update the dictionary in walerts.json to include the locations you want to monitor. They will be displayed in the order entered.
+Update the dictionary in walerts.cfg to include the locations you want to monitor. They will be displayed in the order entered.
 

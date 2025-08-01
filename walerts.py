@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Program : Weather Alerts
+Program : Weather Widget
 Author  : Jon Freivald <jfreivald@brmedical.com>
         : Copyright © Blue Ridge Medical Center, 2025. All Rights Reserved
         : License: GNU GPL Version 3
 Date    : 2025-02-05
 Purpose : To poll the National Weather Service for location specific alerts
+        : Pull daily/hourly forecast on demand.
         : Version change log at EoF.
 """
 
@@ -93,7 +94,7 @@ class UpdateDialog(QDialog):
         self.setStyleSheet(f'background-color: {brmc_medium_blue}')
         self.setWindowTitle("Update Available!")
         layout = QVBoxLayout()
-        self.label = QLabel("There is an update available for the Weather Alert application.")
+        self.label = QLabel("There is an update available for the Weather Widget application.")
         self.label2 = QLabel("Automatic updates are only available for Windows at this time.")
         self.label3 = QLabel("Other platforms please check with your systems administrator.")
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -268,7 +269,7 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet(f'background-color: {brmc_medium_blue}')
         
-        self.setWindowTitle(f'Weather Alerts version {progver}')
+        self.setWindowTitle(f'Weather Widget version {progver}')
         self.setWindowIcon(QIcon('weather-lightning.png'))
         container = QWidget()
         layout = QGridLayout()
@@ -323,10 +324,6 @@ class DataWindow(QWidget):
         self.whichPos = which+'pos'
         self.whichSize = which+'size'
         self.alerts = alerts
-        if self.alerts > 0:
-            self.setWindowTitle(f"Current Alerts for {self.which} ({self.alerts})")
-        else:
-            self.setWindowTitle(f"Current Alerts for {self.which} (none)")
         self.d_forecast = d_forecast
         self.h_forecast = h_forecast
         self.setContentsMargins(10, 10, 10, 10)
@@ -368,6 +365,7 @@ class DataWindow(QWidget):
         self.setLayout(layout)
 
     def show_alerts(self):
+        self.setWindowTitle(f"Current Alerts for {self.which} ({self.alerts})")
         self.setWindowIcon(QIcon('exclamation-diamond-frame.png'))
         self.text_edit.clear()
         if 'title' in self.response.keys(): self.text_edit.insertPlainText(self.response['title']+'\n')
@@ -384,6 +382,7 @@ class DataWindow(QWidget):
         self.text_edit.insertPlainText('End of Alerts')
     
     def show_daily(self):
+        self.setWindowTitle(f"Daily Forecast for {self.which}")
         self.setWindowIcon(QIcon('report--pencil.png'))
         self.text_edit.clear()
         for period in self.d_forecast['properties']['periods']:
@@ -397,7 +396,8 @@ class DataWindow(QWidget):
         self.text_edit.insertPlainText('End of Forecast')
 
     def show_hourly(self):
-        self.setWindowIcon(QIcon('report--pencil.png'))
+        self.setWindowTitle(f"Hourly Forecast for {self.which}")
+        self.setWindowIcon(QIcon('alarm-clock.png'))
         self.text_edit.clear()
         for period in self.h_forecast['properties']['periods']:
             self.text_edit.insertPlainText(str(period['name'] + ' ' + datetime.fromisoformat(period['startTime']).astimezone(tz_NY).strftime("%B %d, %Y @ %H:%M") + ': ' + period['shortForecast'] + ', ' + str(period['temperature']) + ' ' + period['temperatureUnit'] + ', ' + str(period['relativeHumidity']['value']) + '% humidity\n'))
@@ -481,5 +481,5 @@ v 2.4(d)    : 250626        : Parameterized configurable items and moved them to
 v 2.4(e)    : 250707        : Added check to eliminate key error in is_new()
 v 2.4(f)    : 250709        : Added number of alerts to display window title (because I never remembered to scroll down!)
 v 2.4(g)    : 250710        : Corrected a condition where an update with no alert would cause the interface to alert.
-v 3.0       : 250721-2508?? : Major rewrite to include daily and hourly forecasts as well as alerts.
+v 3.0       : 250721-250801 : Major rewrite to include daily and hourly forecasts as well as alerts.
 """

@@ -54,7 +54,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.0'
+progver = '3.01'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -69,9 +69,9 @@ brmc_warm_grey = '#9a8b7d'
 
 num_cols = 10
 loc_config = 'walerts.cfg' # If you change this, update your update_script!
-default_locations = {"Nelson County, VA":"37.7066,-78.9340,VAC125",
-                "Amherst County, VA":"37.5655,-79.0637,VAC009",
-                "Appomattox County, VA":"37.3673,-78.8267,VAC011"}
+default_locations = {"Nelson County, VA":"37.7066, -78.9340, VAC125",
+                "Amherst County, VA":"37.5655, -79.0637, VAC009",
+                "Appomattox County, VA":"37.3673, -78.8267, VAC011"}
 update_source = 'H:/_BRMCApps/WeatherAlerts/walerts.py'
 update_script = 'H:/_BRMCApps/WeatherAlerts/install.bat'
 
@@ -147,13 +147,13 @@ class Location:
 
     def __init__(self, name, lat, lon, zone):
         self.name = name
-        self.lat = lat
-        self.lon = lon
-        self.zone = zone
+        self.lat = lat.strip()
+        self.lon = lon.strip()
+        self.zone = zone.strip()
         self.asterisk = False
         self.response = None
         self.timer = Timer()
-        self.button = QPushButton(self.name)
+        self.button = QPushButton(self.name, flat=False)
         self.button.clicked.connect(self.display)
         self.button_normal()
         try:
@@ -333,12 +333,18 @@ class DataWindow(QWidget):
         self.setStyleSheet(f'background-color: {brmc_medium_blue}; color: black')
         self.alert_button = QPushButton("Alerts")
         self.alert_button.clicked.connect(self.show_alerts)
+        self.alert_icon = QIcon('exclamation-diamond-frame.png')
+        self.alert_button.setIcon(self.alert_icon)
         self.alert_button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
         self.daily_button = QPushButton("Daily Forecast")
         self.daily_button.clicked.connect(self.show_daily)
+        self.daily_icon = QIcon('report--pencil.png')
+        self.daily_button.setIcon(self.daily_icon)
         self.daily_button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
         self.hourly_button = QPushButton("Hourly Forecast")
         self.hourly_button.clicked.connect(self.show_hourly)
+        self.hourly_icon = QIcon('alarm-clock.png')
+        self.hourly_button.setIcon(self.hourly_icon)
         self.hourly_button.setStyleSheet(f'background-color: {brmc_dark_blue}; color: {brmc_gold}')
         layout = QVBoxLayout()
         hbox_layout = QHBoxLayout()
@@ -482,4 +488,5 @@ v 2.4(e)    : 250707        : Added check to eliminate key error in is_new()
 v 2.4(f)    : 250709        : Added number of alerts to display window title (because I never remembered to scroll down!)
 v 2.4(g)    : 250710        : Corrected a condition where an update with no alert would cause the interface to alert.
 v 3.0       : 250721-250801 : Major rewrite to include daily and hourly forecasts as well as alerts.
+v 3.01      : 250804        : Corrected issue parsing configuration file. Minor UI tweaks.
 """

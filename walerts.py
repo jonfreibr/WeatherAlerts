@@ -331,7 +331,10 @@ class DataWindow(QWidget):
         self.resize(self.settings.value(self.whichSize, QSize(655, 600)))
         self.move(self.settings.value(self.whichPos, QPoint(50, 150)))
         self.setStyleSheet(f'background-color: {brmc_medium_blue}; color: black')
-        self.alert_button = QPushButton("Alerts")
+        if self.alerts > 0:
+            self.alert_button = QPushButton(f"Alerts ({self.alerts})")
+        else:
+            self.alert_button = QPushButton("Alerts")
         self.alert_button.clicked.connect(self.show_alerts)
         self.alert_icon = QIcon('exclamation-diamond-frame.png')
         self.alert_button.setIcon(self.alert_icon)

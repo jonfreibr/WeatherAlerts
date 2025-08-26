@@ -47,6 +47,7 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QApplication,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QHBoxLayout,
     QVBoxLayout,
@@ -54,7 +55,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.01'
+progver = '3.02'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -62,6 +63,10 @@ brmc_medium_blue = '#73afb6'
 brmc_gold = '#ffcf01'
 brmc_rust = '#ce7067'
 brmc_warm_grey = '#9a8b7d'
+
+# in case we are running under pythonw.exe
+if sys.stdout is None: sys.stdout = open(os.devnull, "w")
+if sys.stderr is None: sys.stderr = open(os.devnull, "w")
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -259,6 +264,19 @@ class Location:
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
+class NonBlockingDialog(QDialog):
+    def __init__(self, parent = None):
+        super().__init__(parent)
+        self.setWindowTitle("Initializing")
+        self.resize(QSize(500,10))
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+    def setText(self, msg):
+        self.setWindowTitle(f"{msg}")
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -275,9 +293,13 @@ class MainWindow(QMainWindow):
         layout = QGridLayout()
 
         # Create location object
+        msgBox = NonBlockingDialog()
+        msgBox.show()
         for i in locations.keys():
             lat, lon, zone = locations[i].split(',')
+            msgBox.setText(f"Retrieving {i}")
             buttons.append(Location(i, lat, lon, zone))
+        msgBox.close()
 
         # Add location object to layout
         x = 0
@@ -492,4 +514,5 @@ v 2.4(f)    : 250709        : Added number of alerts to display window title (be
 v 2.4(g)    : 250710        : Corrected a condition where an update with no alert would cause the interface to alert.
 v 3.0       : 250721-250801 : Major rewrite to include daily and hourly forecasts as well as alerts.
 v 3.01      : 250804        : Corrected issue parsing configuration file. Minor UI tweaks.
+v 3.02      : 250826        : Added initialization progress display.
 """

@@ -55,7 +55,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02'
+progver = '3.02a'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -161,6 +161,7 @@ class Location:
         self.button = QPushButton(self.name, flat=False)
         self.button.clicked.connect(self.display)
         self.button_normal()
+        self.msgBox = NonBlockingDialog()
         try:
             self.response = requests.get(f'https://api.weather.gov/alerts/active/zone/{self.zone}').json()
             self.response.update({'Retrieved':datetime.now(tz_NY).strftime("%m/%d/%y @ %H:%M")})
@@ -244,10 +245,15 @@ class Location:
     
     def display(self):
         self.asterisk = False
+        self.msgBox.show()
+        self.msgBox.setText(f"Updating {self.name} alerts")
         self.update()
+        self.msgBox.setText(f"Updating {self.name} daily forecast")
         self.get_daily()
+        self.msgBox.setText(f"Updating {self.name} hourly forecast")
         self.get_hourly()
         self.out = DataWindow(self.response, self.name, self.alerts, self.d_forecast, self.h_forecast)
+        self.msgBox.close()
         self.out.show()
 
     def get_button(self):
@@ -267,6 +273,7 @@ class Location:
 class NonBlockingDialog(QDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
+        self.setWindowIcon(QIcon('weather-lightning.png'))
         self.setWindowTitle("Initializing")
         self.resize(QSize(500,10))
         layout = QVBoxLayout()
@@ -289,17 +296,19 @@ class MainWindow(QMainWindow):
         
         self.setWindowTitle(f'Weather Widget version {progver}')
         self.setWindowIcon(QIcon('weather-lightning.png'))
+
+        self.msgBox = NonBlockingDialog()
         container = QWidget()
         layout = QGridLayout()
 
         # Create location object
-        msgBox = NonBlockingDialog()
-        msgBox.show()
+        
+        self.msgBox.show()
         for i in locations.keys():
             lat, lon, zone = locations[i].split(',')
-            msgBox.setText(f"Retrieving {i}")
+            self.msgBox.setText(f"Retrieving {i}")
             buttons.append(Location(i, lat, lon, zone))
-        msgBox.close()
+        self.msgBox.close()
 
         # Add location object to layout
         x = 0
@@ -319,7 +328,9 @@ class MainWindow(QMainWindow):
         timer.start(60000)  # milliseconds
 
     def do_update(self):    # Update all location objects
+        # self.msgBox.show()
         for k in buttons:
+            # self.msgBox.setText(f"Updating {k}")
             k.update()
             if k.is_new():
                 self.raise_()
@@ -328,7 +339,7 @@ class MainWindow(QMainWindow):
                     frequency = 2500
                     duration = 250
                     winsound.Beep(frequency, duration)
-                
+        # self.msgBox.close()
         
 
     def closeEvent(self, a0):
@@ -515,4 +526,5 @@ v 2.4(g)    : 250710        : Corrected a condition where an update with no aler
 v 3.0       : 250721-250801 : Major rewrite to include daily and hourly forecasts as well as alerts.
 v 3.01      : 250804        : Corrected issue parsing configuration file. Minor UI tweaks.
 v 3.02      : 250826        : Added initialization progress display.
+v 3.02a     : 250909        : Added progress display when updating forecasts (when button is pressed).
 """

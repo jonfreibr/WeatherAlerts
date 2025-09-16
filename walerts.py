@@ -55,7 +55,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02a'
+progver = '3.02b'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -227,7 +227,7 @@ class Location:
         return self.h_forecast
 
     def is_new(self):
-        if 'updated' in self.last_response.keys() and 'updated' in self.response.keys():
+        if 'updated' in self.last_response.keys() and 'updated' in self.response.keys() and self.alerts > 0:
             if self.last_response['updated'] == self.response['updated']:
                 return False
             else:
@@ -527,4 +527,5 @@ v 3.0       : 250721-250801 : Major rewrite to include daily and hourly forecast
 v 3.01      : 250804        : Corrected issue parsing configuration file. Minor UI tweaks.
 v 3.02      : 250826        : Added initialization progress display.
 v 3.02a     : 250909        : Added progress display when updating forecasts (when button is pressed).
+v 3.02b     : 250916        : Updated checks to eliminate asterisk/tone on change to no alert.
 """

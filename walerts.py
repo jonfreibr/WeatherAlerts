@@ -14,7 +14,6 @@ import atexit
 import json
 import os
 import psutil
-import pygetwindow as gw
 import pytz
 import requests
 import subprocess
@@ -23,6 +22,7 @@ import time
 
 if sys.platform == "win32":
     import winsound
+    import pygetwindow as gw
 
 from datetime import datetime
 
@@ -56,7 +56,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02c'
+progver = '3.02d'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -329,25 +329,23 @@ class MainWindow(QMainWindow):
         timer.start(60000)  # milliseconds
 
     def do_update(self):    # Update all location objects
-        # self.msgBox.show()
         for k in buttons:
-            # self.msgBox.setText(f"Updating {k}")
             k.update()
             if k.is_new():
-                # self.raise_()
-                # self.activateWindow()
-                # self.showNormal()
-                widget_window = gw.getWindowsWithTitle('Weather Widget')[0]
-                try:
-                    widget_window.restore()
-                    widget_window.activate()
-                except:
-                    pass
                 if sys.platform == "win32":
+                    widget_window = gw.getWindowsWithTitle('Weather Widget')[0]
+                    try:
+                        widget_window.restore()
+                        widget_window.activate()
+                    except:
+                        pass
                     frequency = 2500
                     duration = 250
                     winsound.Beep(frequency, duration)
-        # self.msgBox.close()
+                else:
+                    self.raise_()
+                    self.activateWindow()
+                    self.showNormal()
         
 
     def closeEvent(self, a0):
@@ -536,5 +534,6 @@ v 3.01      : 250804        : Corrected issue parsing configuration file. Minor 
 v 3.02      : 250826        : Added initialization progress display.
 v 3.02a     : 250909        : Added progress display when updating forecasts (when button is pressed).
 v 3.02b     : 250916        : Updated checks to eliminate asterisk/tone on change to no alert.
-v 3.02c     : 251001        : Implemented pygetwindow to bring window to the front/active when an alert occurs.
+v 3.02c     : 251001        : Implemented PyGetWindow to bring window to the front/active when an alert occurs.
+v 3.02d     : 251003        : PyGetWindow aparently only has the Windows portion implemented -- bringing back cross-platform function
 """

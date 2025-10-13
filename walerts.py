@@ -56,7 +56,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02d'
+progver = '3.02e'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -124,6 +124,25 @@ def is_running(script):
                 return True
             
     return False
+
+#--------------------------------------------------------------------------------------------------------------------------------
+
+def raise_window():
+    if sys.platform == "win32":
+        widget_window = gw.getWindowsWithTitle('Weather Widget')[0]
+        try:
+            widget_window.restore()
+            widget_window.activate()
+        except:
+            pass
+        frequency = 2500
+        duration = 250
+        winsound.Beep(frequency, duration)
+
+    else:
+        self.raise_()
+        self.activateWindow()
+        self.showNormal()
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -332,20 +351,7 @@ class MainWindow(QMainWindow):
         for k in buttons:
             k.update()
             if k.is_new():
-                if sys.platform == "win32":
-                    widget_window = gw.getWindowsWithTitle('Weather Widget')[0]
-                    try:
-                        widget_window.restore()
-                        widget_window.activate()
-                    except:
-                        pass
-                    frequency = 2500
-                    duration = 250
-                    winsound.Beep(frequency, duration)
-                else:
-                    self.raise_()
-                    self.activateWindow()
-                    self.showNormal()
+                raise_window()
         
 
     def closeEvent(self, a0):
@@ -465,6 +471,7 @@ class DataWindow(QWidget):
 if __name__ == '__main__':
     
     if is_running(os.path.basename(__file__)):
+        raise_window()
         sys.exit()
 
     app = QApplication(sys.argv)
@@ -536,4 +543,5 @@ v 3.02a     : 250909        : Added progress display when updating forecasts (wh
 v 3.02b     : 250916        : Updated checks to eliminate asterisk/tone on change to no alert.
 v 3.02c     : 251001        : Implemented PyGetWindow to bring window to the front/active when an alert occurs.
 v 3.02d     : 251003        : PyGetWindow aparently only has the Windows portion implemented -- bringing back cross-platform function
+v 3.02e     : 251013        : Attempting to run a second copy will raise the window of the running copy with an alert tone.
 """

@@ -162,4 +162,5 @@ sample_alert*
 Thumbs.db
 ~$*
 *.save
+*.bak
 

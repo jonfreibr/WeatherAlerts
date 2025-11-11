@@ -11,6 +11,7 @@ Purpose : To poll the National Weather Service for location specific alerts
 """
 
 import atexit
+import ctypes
 import json
 import os
 import psutil
@@ -26,8 +27,11 @@ if sys.platform == "win32":
 
 from datetime import datetime
 
+from pathlib import Path
+
 from PySide6.QtGui import (
     QIcon,
+    QPixmap,
 )
 
 from PySide6 import (
@@ -56,7 +60,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02e'
+progver = '3.02f'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -308,15 +312,25 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # This scheme along with the ctypes at launch allows the app icon to properly attach across 
+        # all monitors on a multi-monitor system.
+        self.setWindowTitle(f'Weather Widget version {progver}')
+        icon_path = Path("weather-lightning.png")
+        if icon_path.exists():
+            pixmap = QPixmap(str(icon_path))
+            app_icon = QIcon(pixmap)
+            self.setWindowIcon(app_icon)
+        else:
+            pass
+
+        # self.setWindowIcon(QIcon('weather-lightning.png'))
+
         self.settings = QSettings("Blue Ridge Medical Center", "Weather Alert Widget")
         self.resize(self.settings.value('MainWindowSize', QSize(450, 50)))
         self.move(self.settings.value('MainWindowPos', QPoint(50, 50)))
 
         self.setStyleSheet(f'background-color: {brmc_medium_blue}')
         
-        self.setWindowTitle(f'Weather Widget version {progver}')
-        self.setWindowIcon(QIcon('weather-lightning.png'))
-
         self.msgBox = NonBlockingDialog()
         container = QWidget()
         layout = QGridLayout()
@@ -469,6 +483,10 @@ class DataWindow(QWidget):
 #--------------------------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
+    # This helps windows manage the app icon across multi-monitor systems.
+    myappid = f'BRMC.WeatherAlerts.WeatherWidget.{progver}'
+    if sys.platform == "win32":
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     
     if is_running(os.path.basename(__file__)):
         raise_window()
@@ -544,4 +562,5 @@ v 3.02b     : 250916        : Updated checks to eliminate asterisk/tone on chang
 v 3.02c     : 251001        : Implemented PyGetWindow to bring window to the front/active when an alert occurs.
 v 3.02d     : 251003        : PyGetWindow aparently only has the Windows portion implemented -- bringing back cross-platform function
 v 3.02e     : 251013        : Attempting to run a second copy will raise the window of the running copy with an alert tone.
+v 3.02f     : 251125        : Added code to get the proper icon in the windows task bar on multi-monitor systems.
 """

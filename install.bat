@@ -16,11 +16,12 @@ if %errorlevel% neq 0 (
 ) else (
     for /f "tokens=2 delims= " %%a in ('python --version 2^>^&1') do set "VERSION=%%a"
     echo Found Python version: !VERSION!
-    set "PYTHON_PATH=python"
+    for /f "delims=" %%A in ('where python.exe') do @set PYTHON_PATH=%%A
     for /f "delims=" %%A in ('where pythonw.exe') do @set PYTHONW_PATH=%%A
 )
 
 set "PROJECT_DIR=%USERPROFILE%\Walerts"
+set "DESKTOP_DIR=%USERPROFILE%\Desktop"
 
 echo Creating project folder...
 if not exist "%PROJECT_DIR%" md "%PROJECT_DIR%"
@@ -62,7 +63,9 @@ powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command ^
   "if (Test-Path '%ICON_PATH%') {$s.IconLocation='%ICON_PATH%'};" ^
   "$s.Save()"
 if %errorlevel% neq 0 (
-    echo WARNING: Could not create desktop shortcut.
+    copy /y "%~dp0\Weather Alert.lnk" "%DESKTOP_DIR%"
+    :: echo WARNING: Could not create desktop shortcut.
+    echo Shortcut copied.
 ) else (
     echo Shortcut created successfully.
 )

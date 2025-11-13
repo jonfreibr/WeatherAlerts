@@ -60,7 +60,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02f'
+progver = '3.02g'
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -562,5 +562,6 @@ v 3.02b     : 250916        : Updated checks to eliminate asterisk/tone on chang
 v 3.02c     : 251001        : Implemented PyGetWindow to bring window to the front/active when an alert occurs.
 v 3.02d     : 251003        : PyGetWindow aparently only has the Windows portion implemented -- bringing back cross-platform function
 v 3.02e     : 251013        : Attempting to run a second copy will raise the window of the running copy with an alert tone.
-v 3.02f     : 251125        : Added code to get the proper icon in the windows task bar on multi-monitor systems.
+v 3.02f     : 251105        : Added code to get the proper icon in the windows task bar on multi-monitor systems.
+v 3.02g     : 251111        : Minor bug-fix.
 """

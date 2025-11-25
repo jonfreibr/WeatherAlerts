@@ -60,7 +60,9 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02g'
+progver = '3.02h'
+
+lock_socket = 8089
 
 tz_NY = pytz.timezone('America/New_York')
 brmc_dark_blue = '#00446a'
@@ -120,14 +122,18 @@ class UpdateDialog(QDialog):
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
-def is_running(script):
-    for q in psutil.process_iter():
-        if q.name().startswith('python'):
-            if len(q.cmdline())>1 and script in q.cmdline()[1] and q.pid != os.getpid():
-                # print(f"'{script}' Process is already running")
-                return True
-            
-    return False
+def is_running(lock_socket):
+    import socket
+    global skt # needs to be global to beat GC (Garbage Collection)
+
+    addr = ('127.0.0.1', lock_socket)
+
+    try:
+        skt = socket.create_server(addr)
+    except OSError:
+        return True
+
+    return False    
 
 #--------------------------------------------------------------------------------------------------------------------------------
 
@@ -488,7 +494,8 @@ if __name__ == '__main__':
     if sys.platform == "win32":
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     
-    if is_running(os.path.basename(__file__)):
+    # if is_running(os.path.basename(__file__)):
+    if is_running(lock_socket):
         raise_window()
         sys.exit()
 
@@ -564,4 +571,7 @@ v 3.02d     : 251003        : PyGetWindow aparently only has the Windows portion
 v 3.02e     : 251013        : Attempting to run a second copy will raise the window of the running copy with an alert tone.
 v 3.02f     : 251105        : Added code to get the proper icon in the windows task bar on multi-monitor systems.
 v 3.02g     : 251111        : Minor bug-fix.
+v 3.02h     : 251120        : Changed scheme on how to run only one copy of the process. Previous scheme failed when
+                            :  run in a virtual environment. New scheme listens on a socket -- if the process cannot 
+                            :  create the socket, another copy must already be running.
 """

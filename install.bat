@@ -12,21 +12,30 @@ if %errorlevel% neq 0 (
     echo Python not found. Installing Python 3.11.5...
     "%~dp0\python-3.11.5-amd64.exe" /passive
     set "PYTHON_PATH=%LocalAppData%\Programs\Python\Python311\python.exe"
-    set "PYTHONW_PATH=%LocalAppData%\Programs\Python\Python311\pythonw.exe"
 ) else (
     for /f "tokens=2 delims= " %%a in ('python --version 2^>^&1') do set "VERSION=%%a"
     echo Found Python version: !VERSION!
-    for /f "delims=" %%A in ('where python.exe') do @set PYTHON_PATH=%%A
-    for /f "delims=" %%A in ('where pythonw.exe') do @set PYTHONW_PATH=%%A
+    set "PYTHON_PATH=python"
 )
 
 set "PROJECT_DIR=%USERPROFILE%\Walerts"
+set "VENV_DIR=%PROJECT_DIR%\venv"
 set "DESKTOP_DIR=%USERPROFILE%\Desktop"
 
 echo Creating project folder...
 if not exist "%PROJECT_DIR%" md "%PROJECT_DIR%"
 
-echo Upgrading pip...
+echo Creating virtual environment...
+call "%PYTHON_PATH%" -m venv "%VENV_DIR%"
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to create virtual environment.
+    set "ERRORFLAG=1"
+    goto :END
+)
+echo Virtual environment created at: %VENV_DIR%
+
+echo Activating virtual environment and upgrading pip...
+call "%VENV_DIR%\Scripts\activate.bat"
 call python -m pip install --upgrade pip
 
 if exist "%~dp0\requirements.txt" (
@@ -43,11 +52,14 @@ if exist "%~dp0\requirements.txt" (
 
 echo Copying files
 copy /y "%~dp0\walerts.py" "%PROJECT_DIR%"
-copy /y "%~dp0\WAlertWidgetDefaults.reg" "%PROJECT_DIR%"
+:: copy /y "%~dp0\WAlertWidgetDefaults.reg" "%PROJECT_DIR%"
 copy /y "%~dp0\*.png" "%PROJECT_DIR%"
-copy /y "%~dp0\Weather Alerts.lnk" "%PROJECT_DIR%"
-if not exist "%PROJECT_DIR%\walerts.cfg" copy /y "%~dp0\walerts.json" "%PROJECT_DIR%"
+:: copy /y "%~dp0\Weather Alerts.lnk" "%PROJECT_DIR%"
+if not exist "%PROJECT_DIR%\walerts.cfg" copy /y "%~dp0\walerts.cfg" "%PROJECT_DIR%"
 echo Finished copying files
+
+echo Deactivating virtual environment...
+call deactivate
 
 echo Creating desktop shortcut...
 set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Weather Alerts.lnk"
@@ -57,7 +69,7 @@ set "ICON_PATH=%~dp0\icon.ico"
 
 powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command ^
   "$s=(New-Object -COM WScript.Shell).CreateShortcut('%SHORTCUT_PATH%');" ^
-  "$s.TargetPath='%PYTHONW_PATH%';" ^
+  "$s.TargetPath='%VENV_DIR%\Scripts\pythonw.exe';" ^
   "$s.Arguments='\"%TARGET_PATH%\"';" ^
   "$s.WorkingDirectory='%WORKING_DIR%';" ^
   "if (Test-Path '%ICON_PATH%') {$s.IconLocation='%ICON_PATH%'};" ^

@@ -14,7 +14,6 @@ import atexit
 import ctypes
 import json
 import os
-import psutil
 import pytz
 import requests
 import subprocess

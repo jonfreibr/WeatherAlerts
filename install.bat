@@ -54,6 +54,7 @@ echo Copying files
 copy /y "%~dp0\walerts.py" "%PROJECT_DIR%"
 :: copy /y "%~dp0\WAlertWidgetDefaults.reg" "%PROJECT_DIR%"
 copy /y "%~dp0\*.png" "%PROJECT_DIR%"
+copy /y "%~dp0\*.ico" "%PROJECT_DIR%"
 :: copy /y "%~dp0\Weather Alerts.lnk" "%PROJECT_DIR%"
 if not exist "%PROJECT_DIR%\walerts.cfg" copy /y "%~dp0\walerts.cfg" "%PROJECT_DIR%"
 echo Finished copying files
@@ -65,7 +66,7 @@ echo Creating desktop shortcut...
 set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Weather Alerts.lnk"
 set "TARGET_PATH=%PROJECT_DIR%\walerts.py"
 set "WORKING_DIR=%PROJECT_DIR%"
-set "ICON_PATH=%~dp0\icon.ico"
+set "ICON_PATH=%PROJECT_DIR%\weather-lightning.ico"
 
 powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command ^
   "$s=(New-Object -COM WScript.Shell).CreateShortcut('%SHORTCUT_PATH%');" ^

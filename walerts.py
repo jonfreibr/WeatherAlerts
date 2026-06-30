@@ -2,7 +2,7 @@
 """
 Program : Weather Widget
 Author  : Jon Freivald <jfreivald@brmedical.com>
-        : Copyright © Blue Ridge Medical Center, 2025. All Rights Reserved
+        : Copyright © Blue Ridge Medical Center, 2025, 2026. All Rights Reserved
         : License: GNU GPL Version 3
 Date    : 2025-02-05
 Purpose : To poll the National Weather Service for location specific alerts
@@ -11,7 +11,6 @@ Purpose : To poll the National Weather Service for location specific alerts
 """
 
 import atexit
-import ctypes
 import json
 import os
 import pytz
@@ -59,7 +58,7 @@ from PySide6.QtWidgets import (
     QDialogButtonBox,
 )
 
-progver = '3.02h'
+progver = '3.02i'
 
 lock_socket = 8089
 
@@ -489,8 +488,9 @@ class DataWindow(QWidget):
 
 if __name__ == '__main__':
     # This helps windows manage the app icon across multi-monitor systems.
-    myappid = f'BRMC.WeatherAlerts.WeatherWidget.{progver}'
     if sys.platform == "win32":
+        import ctypes
+        myappid = f'BRMC.WeatherAlerts.WeatherWidget.{progver}'
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     
     # if is_running(os.path.basename(__file__)):
@@ -573,4 +573,5 @@ v 3.02g     : 251111        : Minor bug-fix.
 v 3.02h     : 251120        : Changed scheme on how to run only one copy of the process. Previous scheme failed when
                             :  run in a virtual environment. New scheme listens on a socket -- if the process cannot 
                             :  create the socket, another copy must already be running.
+v 3.02i     : 260630        : Minor refactor to clean up ctypes use.
 """

@@ -20,7 +20,32 @@ if %errorlevel% neq 0 (
 
 set "PROJECT_DIR=%USERPROFILE%\Walerts"
 set "VENV_DIR=%PROJECT_DIR%\venv"
-set "DESKTOP_DIR=%USERPROFILE%\Desktop"
+
+::==========
+
+:: Determine where the Desktop directory is located!!! It's NOT always %USERPROFILE%\Desktop !!!
+
+:: Define your target registry key and value name
+set "REG_KEY=HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+set "REG_VALUE=Desktop"
+
+:: Extract the value data
+for /f "tokens=2*" %%A in ('reg query "%REG_KEY%" /v "%REG_VALUE%" 2^>nul') do (
+    set "REG_DATA=%%B"
+)
+
+:: Verify and use your variable
+if defined REG_DATA (
+    set "DESKTOP_DIR=%REG_DATA%"
+) else (
+    set "DESKTOP_DIR=%USERPROFILE%\Desktop"
+)
+:: Expand the variables!
+call set "DESKTOP_DIR=%DESKTOP_DIR%"
+
+:: End of Desktop location determination
+
+::==========
 
 echo Creating project folder...
 if not exist "%PROJECT_DIR%" md "%PROJECT_DIR%"
@@ -63,7 +88,7 @@ echo Deactivating virtual environment...
 call deactivate
 
 echo Creating desktop shortcut...
-set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Weather Alerts.lnk"
+set "SHORTCUT_PATH=%DESKTOP_DIR%\Weather Alerts.lnk"
 set "TARGET_PATH=%PROJECT_DIR%\walerts.py"
 set "WORKING_DIR=%PROJECT_DIR%"
 set "ICON_PATH=%PROJECT_DIR%\weather-lightning.ico"
